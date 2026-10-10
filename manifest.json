@@ -1,0 +1,31 @@
+{
+  "name": "Left After Bills",
+  "short_name": "Left After Bills",
+  "description": "A pixel-art RPG budget tracker: how much is left after bills.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a1015",
+  "theme_color": "#0a1015",
+  "icons": [
+    {
+      "src": "chest-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "chest-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "chest-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
