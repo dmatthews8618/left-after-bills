@@ -206,7 +206,9 @@ html.sheet-open { overflow: hidden; }
 .pd-f { display: grid; gap: 2px; }
 .pd-l { font-size: 0.7rem; color: var(--ink-3); }
 .pd-row .money { width: 8.5rem; }
-.pd-two { display: flex; gap: 8px; }
+.pd-row[data-kind="card"] { grid-template-columns: minmax(0, 1fr); }   /* card name on its own line, the two boxes underneath */
+.pd-two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+.pd-two .money { width: auto; }
 .pd-slot { grid-column: 1 / -1; min-height: 1.1em; }
 .pd-d { font-size: 0.78rem; color: var(--ink-3); font-weight: 700; }
 .pd-d.dn { color: var(--good, #7fd59a); }
@@ -1122,9 +1124,9 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
     </section>
     <section class="panel" aria-labelledby="bank-h">
       <h2 id="bank-h">Bank spending</h2>
-      <p class="hint">Import a CSV file of your transactions from Bank of Scotland online banking. It is read on this phone only, and nothing is sent anywhere.</p>
+      <p class="hint">Import a statement from Bank of Scotland: the PDF from the banking app, or a CSV from online banking. It is read on this phone only, and nothing is sent anywhere.</p>
       <p class="hint" id="bank-status"></p>
-      <div class="btn-row"><button class="btn primary" id="bank-import" type="button">Import bank file</button><button class="btn" id="bank-clear" type="button" hidden>Clear imported</button><input type="file" id="bank-file" accept=".csv,text/csv,text/plain,application/vnd.ms-excel" hidden></div>
+      <div class="btn-row"><button class="btn primary" id="bank-import" type="button">Import bank file</button><button class="btn" id="bank-clear" type="button" hidden>Clear imported</button><input type="file" id="bank-file" accept=".csv,.pdf,text/csv,text/plain,application/pdf,application/vnd.ms-excel" hidden></div>
       <details class="bank-set"><summary>What counts as spending</summary><div id="bank-types"></div><div id="bank-places"></div></details>
       <p class="msg" id="bank-msg" role="status"></p>
     </section>
@@ -3085,7 +3087,7 @@ const parseMoneyCell = v => { const t = String(v || '').replace(/[£,\s]/g, '');
 function importBank(text) {   // returns { added, read, from, to } or { error }
   const rows = parseCsv(text);
   const hi = rows.findIndex(r => r.some(c => /date/i.test(c)));
-  if (hi < 0) return { error: 'That file has no Date column. Download the CSV (spreadsheet) version of your transactions, not the PDF statement.' };
+  if (hi < 0) return { error: 'That file has no Date column. Try the PDF statement or the CSV download from your bank.' };
   const H = rows[hi].map(h => String(h).trim().toLowerCase()), col = re => H.findIndex(h => re.test(h));
   const iDate = col(/date/), iDesc = col(/desc|detail|payee|narrative|merchant|reference/), iType = col(/^type$|transaction type/);
   const iOut = col(/debit|money out|paid out|withdraw/), iIn = col(/credit|money in|paid in|deposit/), iAmt = col(/amount/);
@@ -3100,6 +3102,9 @@ function importBank(text) {   // returns { added, read, from, to } or { error }
     fresh.push([d, Math.round(out * 100) / 100, iType >= 0 ? String(r[iType] || '').trim().toUpperCase() : '', String(r[iDesc] || '').trim().replace(/\s+/g, ' ')]);
   });
   if (!fresh.length) return { error: 'No money-out transactions found in that file.' };
+  return addTransactions(fresh);
+}
+function addTransactions(fresh) {   // [date, amount out, type, description] rows -> saved, without double counting
   const rec = spendRec(), sig = t => t.join('|'), have = {}, seen = {};
   rec.tx.forEach(t => { have[sig(t)] = (have[sig(t)] || 0) + 1; });
   let added = 0;
@@ -3111,6 +3116,68 @@ function importBank(text) {   // returns { added, read, from, to } or { error }
   if (!setSpendRec(rec)) return { error: 'The phone would not let me save the transactions.' };
   const ds = fresh.map(t => t[0]).sort();
   return { added, read: fresh.length, from: ds[0], to: ds[ds.length - 1] };
+}
+/* a PDF statement: pdf.js (Mozilla, Apache 2.0) reads the text on this phone; the table is rebuilt from its column headings */
+function pdfHeader(items) {
+  const cols = {};
+  items.forEach((it, i) => {
+    let t = it.s.toLowerCase(); const nx = items[i + 1] ? items[i + 1].s.toLowerCase() : '';
+    if (/^(money|paid)$/.test(t)) t += ' ' + nx;
+    if (/^date$/.test(t) && cols.date == null) cols.date = it.x;
+    else if (/^desc/.test(t)) cols.desc = it.x;
+    else if (/^type$/.test(t)) cols.type = it.x;
+    else if (/^(money|paid) in|^credit/.test(t)) cols.in = it.x;
+    else if (/^(money|paid) out|^debit/.test(t)) cols.out = it.x;
+    else if (/^balance/.test(t)) cols.bal = it.x;
+  });
+  return cols.date != null && cols.desc != null && cols.out != null ? cols : null;
+}
+function colFor(cols, x) {   // the column whose heading starts at, or just left of, this text
+  let best = null, bx = -1e9;
+  Object.keys(cols).forEach(k => { if (cols[k] <= x + 3 && cols[k] > bx) { bx = cols[k]; best = k; } });
+  return best;
+}
+async function pdfRows(buf) {
+  let pdfjs;
+  try { pdfjs = await import('./pdf.min.mjs'); } catch (e) { return { error: 'PDF reading only works in the installed app. Here, import the CSV version instead.' }; }
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdf.worker.min.mjs', location.href).href;
+  let doc;
+  try { doc = await pdfjs.getDocument({ data: buf }).promise; } catch (e) { return { error: 'That PDF could not be opened.' }; }
+  const fresh = []; let headerSeen = false;
+  for (let p = 1; p <= doc.numPages; p++) {
+    const tc = await (await doc.getPage(p)).getTextContent();
+    const items = tc.items.filter(it => it.str && it.str.trim()).map(it => ({ s: it.str.trim(), x: it.transform[4], y: it.transform[5] }));
+    items.sort((a, b) => b.y - a.y || a.x - b.x);   // top of the page first
+    const lines = [];
+    items.forEach(it => { const ln = lines.find(l => Math.abs(l.y - it.y) < 3); if (ln) ln.items.push(it); else lines.push({ y: it.y, items: [it] }); });
+    let cols = null;
+    const rows = [];   // in page order: dated rows, description-only lines (a wrapped description), and anything else
+    lines.forEach(l => {
+      l.items.sort((a, b) => a.x - b.x);
+      const h = pdfHeader(l.items); if (h) { cols = h; headerSeen = true; rows.push({ k: 'other' }); return; }
+      if (!cols) return;
+      const cell = {}; l.items.forEach(it => { const c = colFor(cols, it.x); if (c) cell[c] = (cell[c] ? cell[c] + ' ' : '') + it.s; });
+      const d = parseBankDate(cell.date);
+      if (d) rows.push({ k: 'tx', y: l.y, d, cell, desc: [{ y: l.y, t: cell.desc || '' }] });
+      else if (cell.desc && Object.keys(cell).length === 1) rows.push({ k: 'more', y: l.y, t: cell.desc });
+      else rows.push({ k: 'other' });
+    });
+    rows.forEach((r, i) => {   // a wrapped description line joins the nearest dated row (banks align these at the top or the middle of the row)
+      if (r.k !== 'more') return;
+      let best = null;
+      for (let j = i - 1; j >= 0 && rows[j].k !== 'other'; j--) if (rows[j].k === 'tx') { best = rows[j]; break; }
+      for (let j = i + 1; j < rows.length && rows[j].k !== 'other'; j++) if (rows[j].k === 'tx') { if (!best || Math.abs(rows[j].y - r.y) < Math.abs(best.y - r.y)) best = rows[j]; break; }
+      if (best) best.desc.push({ y: r.y, t: r.t });
+    });
+    rows.forEach(r => {
+      if (r.k !== 'tx') return;
+      const out = Math.abs(parseMoneyCell(r.cell.out)); if (!(out > 0)) return;   // money in is not spending
+      const desc = r.desc.sort((a, b) => b.y - a.y).map(x => x.t).join(' ').replace(/\s+/g, ' ').trim();
+      fresh.push([r.d, Math.round(out * 100) / 100, String(r.cell.type || '').trim().toUpperCase(), desc]);
+    });
+  }
+  if (!headerSeen) return { error: 'I could not find the transactions table (Date, Description, Type, Money In, Money Out) in that PDF.' };
+  return { fresh };
 }
 const placeOf = desc => String(desc || '').toUpperCase().replace(/[*#]/g, ' ').replace(/\d{3,}/g, ' ').replace(/[\-_]+(\s|$)/g, ' ').replace(/\s+/g, ' ').trim() || 'UNKNOWN';
 function countsAsSpend(rec, t) {
@@ -3164,9 +3231,13 @@ function bankSay(t) { $('bank-msg').textContent = t; }
 $('bank-import').addEventListener('click', () => $('bank-file').click());
 $('bank-file').addEventListener('change', async e => {
   const f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return;
-  if (/\.pdf$/i.test(f.name)) { bankSay('That is a PDF statement. Download the CSV (spreadsheet) version of your transactions instead.'); return; }
   try {
-    const r = importBank(await f.text());
+    let r;
+    if (/\.pdf$/i.test(f.name) || f.type === 'application/pdf') {
+      bankSay('Reading the PDF…');
+      const pr = await pdfRows(await f.arrayBuffer());
+      r = pr.error ? pr : pr.fresh.length ? addTransactions(pr.fresh) : { error: 'No money-out transactions found in that PDF.' };
+    } else r = importBank(await f.text());
     if (r.error) bankSay(r.error);
     else bankSay('Read ' + r.read + (r.read === 1 ? ' payment' : ' payments') + ' out (' + new Date(r.from + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ' to ' + new Date(r.to + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + '). ' + (r.added === r.read ? 'All new.' : r.added ? r.added + ' new, the rest were already imported.' : 'All of them were already imported.'));
   } catch (er) { bankSay('Could not read that file.'); }

@@ -6,4 +6,7 @@ A personal pixel-art RPG budget tracker. It runs entirely in the browser and kee
 - Heroes, bosses and creatures: LuizMelo (CC0), https://luizmelo.itch.io/
 - Chests: "Free Chest Animations" by Admurin, https://admurin.itch.io/free-chest-animations
 - Treasure and coins: "Treasure+" by SciGho (CC BY 4.0), https://ninjikin.itch.io/treasure
+
+## Code
+- PDF statement reading: pdf.js 4.10.38 by the Mozilla Foundation (Apache License 2.0, see pdfjs-LICENSE.txt), https://mozilla.github.io/pdf.js/
 - Forest scenery and original character art: Pixel Crawler by Anokolisa, Free Knight by aamatniekss, Fantasy UI pack
