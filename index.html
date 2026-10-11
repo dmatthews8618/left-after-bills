@@ -995,6 +995,7 @@ body .net-line b { font-size: 1.25rem; vertical-align: baseline; }
 .screen { gap: 18px; }
 /* tab dock: readable labels */
 .tab { font-size: 0.8rem; min-height: 62px; }
+.delta.short { white-space: nowrap; }
 </style>
 
 <script>try { if (localStorage.getItem('left-after-bills-skin') === 'stone') document.documentElement.classList.add('stone'); } catch (e) {}
@@ -2457,9 +2458,10 @@ const sgn = d => (d > 0 ? '+' : d < 0 ? '−' : '') + money(Math.abs(d));
 
 function balChip(d, pk, debt, short) {
   const lbl = keyLabel(pk, !!short);
-  if (Math.abs(d) < 0.005) return '<span class="delta">Unchanged since ' + lbl + '</span>';
+  if (Math.abs(d) < 0.005) return '<span class="delta' + (short ? ' short' : '') + '">' + (short ? 'Same as ' : 'Unchanged since ') + lbl + '</span>';
   const up = d > 0;
   const good = debt ? !up : up;
+  if (short) return '<span class="delta short ' + (good ? 'up' : 'down') + '">' + (up ? ICON_UP : ICON_DOWN) + (up ? '+' : '−') + money(Math.abs(d)) + ' vs ' + lbl + '</span>';   // fits the small Camp boxes on one line
   return '<span class="delta ' + (good ? 'up' : 'down') + '">' + (up ? ICON_UP : ICON_DOWN) + money(Math.abs(d)) + ' ' + (up ? 'higher' : 'lower') + ' than ' + lbl + '</span>';
 }
 
