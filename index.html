@@ -3075,9 +3075,9 @@ function parseCsv(text) {   // handles quotes, commas inside quotes and Windows 
 const MONTHS3 = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
 function parseBankDate(str) {   // UK style, day first
   const s = String(str || '').trim(); let m, y, mo, d;
-  if ((m = /^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})$/.exec(s))) { d = +m[1]; mo = +m[2]; y = +m[3]; }
+  if ((m = /^(\d{1,2})\s*[\/.\-]\s*(\d{1,2})\s*[\/.\-]\s*(\d{2,4})$/.exec(s))) { d = +m[1]; mo = +m[2]; y = +m[3]; }
   else if ((m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(s))) { y = +m[1]; mo = +m[2]; d = +m[3]; }
-  else if ((m = /^(\d{1,2})[\s\-]+([A-Za-z]{3})[A-Za-z]*[\s\-]+(\d{2,4})$/.exec(s))) { d = +m[1]; mo = MONTHS3[m[2].toLowerCase()]; y = +m[3]; }
+  else if ((m = /^(\d{1,2})[\s\-]*([A-Za-z]{3})[A-Za-z]*[\s\-]*(\d{2,4})$/.exec(s))) { d = +m[1]; mo = MONTHS3[m[2].toLowerCase()]; y = +m[3]; }
   else return null;
   if (y < 100) y += 2000;
   if (!mo || mo < 1 || mo > 12 || d < 1 || d > 31) return null;
@@ -3121,32 +3121,35 @@ function addTransactions(fresh) {   // [date, amount out, type, description] row
 function pdfHeader(items) {
   const cols = {};
   items.forEach((it, i) => {
-    let t = it.s.toLowerCase(); const nx = items[i + 1] ? items[i + 1].s.toLowerCase() : '';
-    if (/^(money|paid)$/.test(t)) t += ' ' + nx;
-    if (/^date$/.test(t) && cols.date == null) cols.date = it.x;
-    else if (/^desc/.test(t)) cols.desc = it.x;
-    else if (/^type$/.test(t)) cols.type = it.x;
-    else if (/^(money|paid) in|^credit/.test(t)) cols.in = it.x;
-    else if (/^(money|paid) out|^debit/.test(t)) cols.out = it.x;
-    else if (/^balance/.test(t)) cols.bal = it.x;
+    let t = it.s.toLowerCase().replace(/\s+/g, ''), end = it.x + it.w; const nx = items[i + 1];   // spaces ignored: some PDFs spell headings out as "D a t e"
+    if (/^(money|paid)$/.test(t) && nx) { t += nx.s.toLowerCase().replace(/\s+/g, ''); end = nx.x + nx.w; }
+    const mid = (it.x + end) / 2;   // a column is found by the centre of its heading
+    if (/^date$/.test(t) && cols.date == null) cols.date = mid;
+    else if (/^desc/.test(t)) cols.desc = mid;
+    else if (/^type$/.test(t)) cols.type = mid;
+    else if (/^(money|paid)in|^credit/.test(t)) cols.in = mid;
+    else if (/^(money|paid)out|^debit/.test(t)) cols.out = mid;
+    else if (/^balance/.test(t)) cols.bal = mid;
   });
   return cols.date != null && cols.desc != null && cols.out != null ? cols : null;
 }
-function colFor(cols, x) {   // the column whose heading starts at, or just left of, this text
-  let best = null, bx = -1e9;
-  Object.keys(cols).forEach(k => { if (cols[k] <= x + 3 && cols[k] > bx) { bx = cols[k]; best = k; } });
+function colFor(cols, it) {   // the column whose heading centre is nearest the centre of this text (works for left, centred and right-aligned tables)
+  const c = it.x + (it.w || 0) / 2; let best = null, bd = 1e9;
+  Object.keys(cols).forEach(k => { const dd = Math.abs(cols[k] - c); if (dd < bd) { bd = dd; best = k; } });
   return best;
 }
+const unspace = t => { const parts = String(t || '').trim().split(/\s+/); return parts.length > 2 && parts.filter(x => x.length === 1).length / parts.length >= 0.7 ? parts.join('') : String(t || '').trim(); };   // "C O R N E R" -> "CORNER"
+const maskText = t => String(t || '').split(/(\s+)/).map(w => /^(DEB|TFR|FPI|FPO|DD|SO|CPT|BGC|BP|CHG|FEE|PAY|COR|INT|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/i.test(w) ? w : w.replace(/[0-9]/g, '9').replace(/[A-Za-z]/g, 'x')).join('').slice(0, 40);
 async function pdfRows(buf) {
   let pdfjs;
   try { pdfjs = await import('./pdf.min.mjs'); } catch (e) { return { error: 'PDF reading only works in the installed app. Here, import the CSV version instead.' }; }
   pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdf.worker.min.mjs', location.href).href;
   let doc;
   try { doc = await pdfjs.getDocument({ data: buf }).promise; } catch (e) { return { error: 'That PDF could not be opened.' }; }
-  const fresh = []; let headerSeen = false;
+  const fresh = [], diag = []; let headerSeen = false, diagHead = '';
   for (let p = 1; p <= doc.numPages; p++) {
     const tc = await (await doc.getPage(p)).getTextContent();
-    const items = tc.items.filter(it => it.str && it.str.trim()).map(it => ({ s: it.str.trim(), x: it.transform[4], y: it.transform[5] }));
+    const items = tc.items.filter(it => it.str && it.str.trim()).map(it => ({ s: it.str.trim(), x: it.transform[4], y: it.transform[5], w: it.width || 0, h: Math.abs(it.transform[3]) || 8 }));
     items.sort((a, b) => b.y - a.y || a.x - b.x);   // top of the page first
     const lines = [];
     items.forEach(it => { const ln = lines.find(l => Math.abs(l.y - it.y) < 3); if (ln) ln.items.push(it); else lines.push({ y: it.y, items: [it] }); });
@@ -3154,12 +3157,22 @@ async function pdfRows(buf) {
     const rows = [];   // in page order: dated rows, description-only lines (a wrapped description), and anything else
     lines.forEach(l => {
       l.items.sort((a, b) => a.x - b.x);
-      const h = pdfHeader(l.items); if (h) { cols = h; headerSeen = true; rows.push({ k: 'other' }); return; }
+      const merged = [];   // some PDFs store text in fragments, even single letters: glue touching pieces back into words
+      l.items.forEach(it => { const p = merged[merged.length - 1]; if (p && it.x - (p.x + p.w) <= it.h * 0.2) { p.s += it.s; p.w = it.x + it.w - p.x; } else merged.push(Object.assign({}, it)); });
+      l.items = merged;
+      const h = pdfHeader(l.items); if (h) { cols = h; headerSeen = true; rows.push({ k: 'other' }); if (!diagHead) diagHead = Object.keys(h).map(k => k + '@' + Math.round(h[k])).join(' ') + ' / first row x: ' + ((lines[lines.indexOf(l) + 1] || { items: [] }).items.map(it => Math.round(it.x)).join(',')); return; }
       if (!cols) return;
-      const cell = {}; l.items.forEach(it => { const c = colFor(cols, it.x); if (c) cell[c] = (cell[c] ? cell[c] + ' ' : '') + it.s; });
-      const d = parseBankDate(cell.date);
+      const cell = {}, endX = {};
+      l.items.forEach(it => {
+        const c = colFor(cols, it); if (!c) return;
+        const gap = endX[c] == null ? 0 : it.x - endX[c];
+        cell[c] = cell[c] == null ? it.s : cell[c] + (gap > it.h * 0.2 ? ' ' : '') + it.s;   // touching pieces are one word
+        endX[c] = it.x + it.w;
+      });
+      if (diag.length < 6) diag.push(Object.keys(cell).map(k => k + ':' + maskText(cell[k])).join(' | '));
+      const d = parseBankDate(cell.date) || parseBankDate(String(cell.date || '').replace(/\s+/g, ''));
       if (d) rows.push({ k: 'tx', y: l.y, d, cell, desc: [{ y: l.y, t: cell.desc || '' }] });
-      else if (cell.desc && Object.keys(cell).length === 1) rows.push({ k: 'more', y: l.y, t: cell.desc });
+      else if (cell.desc && Object.keys(cell).length === 1) rows.push({ k: 'more', y: l.y, h: (l.items[0] && l.items[0].h) || 8, t: cell.desc });
       else rows.push({ k: 'other' });
     });
     rows.forEach((r, i) => {   // a wrapped description line joins the nearest dated row (banks align these at the top or the middle of the row)
@@ -3167,16 +3180,18 @@ async function pdfRows(buf) {
       let best = null;
       for (let j = i - 1; j >= 0 && rows[j].k !== 'other'; j--) if (rows[j].k === 'tx') { best = rows[j]; break; }
       for (let j = i + 1; j < rows.length && rows[j].k !== 'other'; j++) if (rows[j].k === 'tx') { if (!best || Math.abs(rows[j].y - r.y) < Math.abs(best.y - r.y)) best = rows[j]; break; }
-      if (best) best.desc.push({ y: r.y, t: r.t });
+      if (best && Math.abs(best.y - r.y) <= r.h * 2.5) best.desc.push({ y: r.y, t: r.t });   // only a line sitting right by its row: never a page footer
     });
     rows.forEach(r => {
       if (r.k !== 'tx') return;
       const out = Math.abs(parseMoneyCell(r.cell.out)); if (!(out > 0)) return;   // money in is not spending
-      const desc = r.desc.sort((a, b) => b.y - a.y).map(x => x.t).join(' ').replace(/\s+/g, ' ').trim();
-      fresh.push([r.d, Math.round(out * 100) / 100, String(r.cell.type || '').trim().toUpperCase(), desc]);
+      const desc = r.desc.sort((a, b) => b.y - a.y).map(x => unspace(x.t)).join(' ').replace(/\s+/g, ' ').trim();
+      fresh.push([r.d, Math.round(out * 100) / 100, String(r.cell.type || '').replace(/\s+/g, '').toUpperCase(), desc]);
     });
   }
-  if (!headerSeen) return { error: 'I could not find the transactions table (Date, Description, Type, Money In, Money Out) in that PDF.' };
+  const details = ' Details, with your information hidden: ' + (diagHead || 'no table heading') + ' // ' + diag.join(' // ');
+  if (!headerSeen) return { error: 'I could not find the transactions table (Date, Description, Type, Money In, Money Out) in that PDF.' + details };
+  if (!fresh.length) return { error: 'No money-out transactions found in that PDF.' + details };
   return { fresh };
 }
 const placeOf = desc => String(desc || '').toUpperCase().replace(/[*#]/g, ' ').replace(/\d{3,}/g, ' ').replace(/[\-_]+(\s|$)/g, ' ').replace(/\s+/g, ' ').trim() || 'UNKNOWN';
