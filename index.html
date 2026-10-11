@@ -997,8 +997,91 @@ body .net-line b { font-size: 1.25rem; vertical-align: baseline; }
 .tab { font-size: 0.8rem; min-height: 62px; }
 .delta.short { white-space: nowrap; }
 </style>
+<style id="calm-look">
+/* ===== Calm look (the third board style): cream cards, serif headings, no pixel art. Adapted from the "Breathing room" preview. ===== */
+:root:root:root.calm {
+  color-scheme: light;
+  --bg: #f4f3ed; --surface: #fffefa; --field: #eef0e7; --ink: #243e35; --ink-2: #526558; --ink-3: #5a6b60;
+  --line: #dce2d6; --line-strong: #bdc9b8; --accent: #245a44; --accent-hi: #245a44; --accent-lo: #245a44; --on-accent: #fffefa; --focus: #986d29;
+  --good: #245a44; --bad: #a44138; --c1: #678fa6; --c2: #c27d5b; --c3: #7e9b68; --c4: #c1a15a; --c5: #aa8097; --c6: #518b7d; --c7: #9089ae; --neutral: #c9ccc0;
+  --display: Georgia, "Times New Roman", serif; --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --well: #eef0e7; --well-edge: #dce2d6; --gold: #245a44; --frame: #dce2d6; --plank-ink: #243e35;
+  --sh-out: none; --sh-out-sm: none; --sh-in: none; --sh-in-sm: none; --sh-btn: none;
+}
+html.calm { background: #f4f3ed; }
+.calm #world, .calm .vista, .calm .narrator, .calm .spr, .calm .foe, .calm .foe-hp, .calm .mob, .calm .mob-still, .calm .dmg, .calm .wp,
+.calm .top h1::before, .calm .hero .label::before, .calm .char::before, .calm #tab-savings .hero::before { display: none !important; }
+/* cards instead of signboards */
+.calm .panel, .calm .hero, .calm .char {
+  border: 1px solid var(--line); border-image: none; border-radius: 22px !important; background: var(--surface); box-shadow: none; padding: 20px;
+}
+.calm .panel.fold { padding: 0; }
+.calm .char, .calm #tab-savings .hero { margin-top: 0; }
+.calm .panel h2 { border: 0; border-image: none; margin: 0; padding: 0; font-family: var(--font); font-size: 1.05rem; font-weight: 650; letter-spacing: -0.01em; text-transform: none; color: var(--ink); line-height: 1.35; }
+.calm .top h1 { font-family: var(--display); font-weight: 400; font-size: 2rem; letter-spacing: -0.03em; color: var(--ink); text-shadow: none; }
+.calm .sect-title { font-family: var(--display); font-size: 1.6rem; font-weight: 400; color: var(--ink); text-shadow: none; }
+.calm .payday .days { color: var(--accent); text-shadow: none; }
+.calm .payday .when, .calm .label, .calm .stat dt, .calm .mini dt, .calm .t-label { color: var(--ink-3); }
+.calm body .big { font-family: var(--display) !important; font-weight: 400 !important; color: var(--ink); text-shadow: none !important; letter-spacing: -0.03em; }
+.calm body .t-val, .calm body .tile .t-val { font-family: var(--display) !important; font-weight: 400 !important; font-size: 1.8rem !important; }
+/* wells, notices, tiles */
+.calm .money, .calm .field, .calm .stat, .calm .mini, .calm .notice, .calm .well, .calm .trophy, .calm .boss, .calm .compare-list li, .calm .status, .calm .delta,
+.calm .backup textarea, .calm #ov-trend:not(:empty), .calm #hi-line, .calm #hi-stack, .calm .bill, .calm .acct, .calm .hrow, .calm .quest, .calm .cq-row, .calm .beast {
+  background: var(--field); border: 1px solid var(--line); border-image: none; border-radius: 12px !important; color: var(--ink);
+}
+.calm .tile, .calm .net-line { background: var(--surface); border: 1px solid var(--line); box-shadow: none; border-radius: 18px !important; color: var(--ink); }
+.calm .money, .calm .field { background: #fafaf5; border-color: var(--line-strong); }
+.calm .status.good, .calm .delta.up { color: var(--good); } .calm .status.bad, .calm .delta.down { color: var(--bad); }
+.calm .track, .calm .split { background: var(--field); border: 0; box-shadow: none; height: 10px; border-radius: 999px !important; overflow: hidden; }
+.calm .split { height: 14px; }
+.calm .fill, .calm .split .seg { box-shadow: none; background-image: none; }
+.calm .legend .sw, .calm .cat-dot, .calm .tdot { box-shadow: none; }
+.calm .quest .qbox { border-radius: 50% !important; border: 1px solid var(--line-strong); }
+.calm .quest.done .qbox { background: var(--accent); color: #fff; border-color: var(--accent); }
+.calm .quest.done .qx, .calm .trophy b, .calm .hrow .hl b, .calm .hrow .hr b, .calm .xp-bd summary b, .calm .char-top b, .calm .beast b, .calm .snowball b { color: var(--accent); text-shadow: none; }
+.calm .fold > summary { color: var(--ink); text-shadow: none; }
+.calm .chev { color: var(--ink-3); }
+/* buttons, stepper, level badge and toast lose their planks */
+.calm .btn, .calm .stepper .mlabel, .calm .lv, .calm .levelup, .calm #toast, .calm .skin button, .calm .motion-btn {
+  border: 1px solid var(--line-strong); border-image: none; border-radius: 12px !important; background: var(--surface); color: var(--ink); text-shadow: none; box-shadow: none;
+}
+.calm .btn { padding: 10px 16px; font-weight: 600; }
+.calm .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.calm .btn.icon { background-color: var(--surface); }
+.calm .stepper .mlabel { font-family: var(--font); font-weight: 650; padding: 10px 12px; }
+.calm .skin button, .calm .motion-btn { font-family: var(--font); font-size: 0.85rem; font-weight: 600; padding: 9px 12px; }
+.calm .skin button[aria-pressed="true"], .calm .motion-btn[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+/* tab bar */
+.calm .tabbar { background: rgba(255, 254, 250, 0.96); border-top: 1px solid var(--line); padding: 0; }
+.calm .tabbar-in { background: transparent; border: 0; box-shadow: none; padding: 6px 8px calc(8px + env(safe-area-inset-bottom, 0px)); }
+.calm .tab { border: 0; border-image: none; border-radius: 10px !important; color: var(--ink-2); background: transparent; }
+.calm .tab[aria-current="page"] { border-image: none; background: #e7eddf; color: var(--ink); }
 
-<script>try { if (localStorage.getItem('left-after-bills-skin') === 'stone') document.documentElement.classList.add('stone'); } catch (e) {}
+.calm .xp-bd li { background: var(--field); }
+.calm .tag { border-radius: 8px !important; border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); }
+.calm .rm-ask { background: #f8e9e6; }
+.calm .acct-delta { background: var(--field); box-shadow: none; }
+.calm body::before { display: none; }
+.calm #st-beast-fold { display: none !important; }
+.calm .btn.icon { background-image: none !important; color: var(--ink); }
+.calm .btn.icon svg { display: block; margin: auto; }
+.calm .bill summary { grid-template-columns: minmax(0, 1fr) 6rem 14px; grid-template-areas: "name amt chev" "sub sub chev"; }
+
+/* Calm look: line icons in place of the pixel ones */
+.calm .ti, .calm .bi { background-image: none !important; background-color: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='14' r='5.5'/%3E%3Cpath d='M9 3h6l-1.5 5.5h-3z'/%3E%3Cpath d='m12 11.5.9 1.8 2 .3-1.45 1.4.35 2-1.8-.95-1.8.95.35-2L9.1 13.6l2-.3z'/%3E%3C/svg%3E") center / 80% no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='14' r='5.5'/%3E%3Cpath d='M9 3h6l-1.5 5.5h-3z'/%3E%3Cpath d='m12 11.5.9 1.8 2 .3-1.45 1.4.35 2-1.8-.95-1.8.95.35-2L9.1 13.6l2-.3z'/%3E%3C/svg%3E") center / 80% no-repeat; }
+.calm .tab .ti { width: 26px; height: 26px; filter: none; }
+.calm .ti.ic-camp { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10.5 12 3l9 7.5'/%3E%3Cpath d='M5 9.5V20h14V9.5'/%3E%3Cpath d='M10 20v-6h4v6'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10.5 12 3l9 7.5'/%3E%3Cpath d='M5 9.5V20h14V9.5'/%3E%3Cpath d='M10 20v-6h4v6'/%3E%3C/svg%3E"); }
+.calm .ti.ic-quest { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='3' width='16' height='18' rx='2'/%3E%3Cpath d='m8 9 1.5 1.5L12 8'/%3E%3Cpath d='M14 9.5h3'/%3E%3Cpath d='m8 15 1.5 1.5L12 14'/%3E%3Cpath d='M14 15.5h3'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='3' width='16' height='18' rx='2'/%3E%3Cpath d='m8 9 1.5 1.5L12 8'/%3E%3Cpath d='M14 9.5h3'/%3E%3Cpath d='m8 15 1.5 1.5L12 14'/%3E%3Cpath d='M14 15.5h3'/%3E%3C/svg%3E"); }
+.calm .ti.ic-vault { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 11a7 6 0 0 1 13-2h2v4l-2 1a7 6 0 0 1-2 3v3h-3v-2h-3v2H7v-3a6 6 0 0 1-2-6z'/%3E%3Cpath d='M10 7.5h4'/%3E%3Ccircle cx='15.5' cy='11' r='.6' fill='black'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 11a7 6 0 0 1 13-2h2v4l-2 1a7 6 0 0 1-2 3v3h-3v-2h-3v2H7v-3a6 6 0 0 1-2-6z'/%3E%3Cpath d='M10 7.5h4'/%3E%3Ccircle cx='15.5' cy='11' r='.6' fill='black'/%3E%3C/svg%3E"); }
+.calm .ti.ic-codex { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20h16'/%3E%3Crect x='6' y='11' width='3' height='7' rx='.5'/%3E%3Crect x='11' y='6' width='3' height='12' rx='.5'/%3E%3Crect x='16' y='14' width='3' height='4' rx='.5'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20h16'/%3E%3Crect x='6' y='11' width='3' height='7' rx='.5'/%3E%3Crect x='11' y='6' width='3' height='12' rx='.5'/%3E%3Crect x='16' y='14' width='3' height='4' rx='.5'/%3E%3C/svg%3E"); }
+.calm .ti.ic-chron { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 6.5C10 5 7 4.5 4 5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5V5c-3-.5-6 0-8 1.5z'/%3E%3Cpath d='M12 6.5v13'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 6.5C10 5 7 4.5 4 5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5V5c-3-.5-6 0-8 1.5z'/%3E%3Cpath d='M12 6.5v13'/%3E%3C/svg%3E"); }
+.calm .bi-hp { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z'/%3E%3C/svg%3E"); color: var(--bad); }
+.calm .bi:not(.bi-hp) { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z'/%3E%3C/svg%3E"); color: var(--accent); }
+.calm .trophy .ti { color: var(--accent); filter: none !important; }
+.calm .trophy.locked .ti { color: var(--neutral); }
+</style>
+
+<script>try { var sk = localStorage.getItem('left-after-bills-skin'); if (sk === 'stone' || sk === 'calm') document.documentElement.classList.add(sk); } catch (e) {}
 window.lowMotion = function () { if (window.__mp === 'on') return false; if (window.__mp === 'off') return true;   /* in-memory choice, for phones that block saving settings */
   try { var p = localStorage.getItem('left-after-bills-motion'); if (p === 'on') return false; if (p === 'off') return true; } catch (e) {} return !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); };
 document.documentElement.classList.toggle('still', window.lowMotion());</script>
@@ -1036,7 +1119,7 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
       <span>These are example figures. Clear them to start with your own.</span>
       <button class="btn" id="clear-examples" type="button">Clear examples</button>
     </div>
-    <div class="btn-row"><button class="btn primary" id="ov-edit" type="button">Fill in or edit this month</button><button class="btn" id="ov-adv" type="button">Hero, quests and trophies</button></div>
+    <div class="btn-row"><button class="btn primary" id="ov-edit" type="button">Fill in or edit this month</button><button class="btn" id="ov-adv" type="button" data-calm="Your progress">Hero, quests and trophies</button></div>
     <section class="panel pv-off" aria-labelledby="ov-glance-h">
       <h2 id="ov-glance-h">Battle report</h2>
       <dl class="stats3">
@@ -1058,7 +1141,7 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
 
   <!-- MONTHLY -->
   <section class="screen" id="tab-monthly" aria-label="Monthly" hidden>
-    <header class="top"><h1>Quest Log</h1></header>
+    <header class="top"><h1 data-calm="This month">Quest Log</h1></header>
     <figure class="vista" aria-hidden="true"><canvas class="scene" data-scene="quest"></canvas></figure>
     <div class="stepper">
       <button class="btn icon m-prev" type="button" aria-label="Previous month"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M11 3L5 9l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -1079,7 +1162,7 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
     </section>
     <section class="panel" aria-labelledby="bills-h">
       <div class="panel-head">
-        <h2 id="bills-h">Foes (bills)</h2>
+        <h2 id="bills-h" data-calm="Bills">Foes (bills)</h2>
         <span class="sum" id="bills-sum"></span>
       </div>
       <ul class="bills" id="bills"></ul>
@@ -1088,7 +1171,7 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
     </section>
     <section class="panel" aria-labelledby="cards-h">
       <div class="panel-head">
-        <h2 id="cards-h">Bosses (credit cards)</h2>
+        <h2 id="cards-h" data-calm="Credit cards">Bosses (credit cards)</h2>
         <span class="sum" id="cards-sum"></span>
       </div>
       <p id="cards-change"></p>
@@ -1118,10 +1201,10 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
         <div class="btn-row" id="del-row" hidden><button class="btn" id="del-month" type="button">Delete this month</button></div>
       </div>
     </details>
-    <h2 class="sect-title">Your adventure</h2>
+    <h2 class="sect-title" data-calm="Your progress">Your adventure</h2>
     <section class="char" id="ov-char" aria-label="Your character"></section>
     <section class="panel" aria-labelledby="ov-quest-h">
-      <h2 id="ov-quest-h">This month’s quests</h2>
+      <h2 id="ov-quest-h" data-calm="Small steps this month">This month’s quests</h2>
       <div id="ov-quests"></div>
     </section>
     <details class="panel fold" id="ov-boss-panel" hidden>
@@ -1136,7 +1219,7 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
 
   <!-- SAVINGS -->
   <section class="screen" id="tab-savings" aria-label="Savings" hidden>
-    <header class="top"><h1>The Vault</h1></header>
+    <header class="top"><h1 data-calm="Savings">The Vault</h1></header>
     <figure class="vista" aria-hidden="true"><canvas class="scene" data-scene="vault"></canvas></figure>
     <div class="stepper">
       <button class="btn icon m-prev" type="button" aria-label="Previous month"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M11 3L5 9l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -1146,7 +1229,7 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
     <div class="notice virtual-notice" hidden></div>
     <section class="hero" aria-labelledby="sv-label">
       <div class="spr chest t0" id="sv-chest" aria-hidden="true"></div>
-      <p class="label" id="sv-label">Treasure hoard</p>
+      <p class="label" id="sv-label" data-calm="Total savings">Treasure hoard</p>
       <p class="big" id="sv-total">£0</p>
       <p id="sv-change"></p>
       <p class="vault-tier" id="sv-tier"></p>
@@ -1160,7 +1243,7 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
 
   <!-- STATS -->
   <section class="screen" id="tab-stats" aria-label="Stats" hidden>
-    <header class="top"><h1>Codex</h1></header>
+    <header class="top"><h1 data-calm="Stats">Codex</h1></header>
     <figure class="vista" aria-hidden="true"><canvas class="scene" data-scene="codex"></canvas></figure>
     <details class="panel fold" id="st-beast-fold">
       <summary><span>Bestiary <span class="sum-chip" id="st-beast-count"></span></span><svg class="chev" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
@@ -1208,7 +1291,7 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
 
   <!-- HISTORY -->
   <section class="screen" id="tab-history" aria-label="History" hidden>
-    <header class="top"><h1>Chronicle</h1></header>
+    <header class="top"><h1 data-calm="History">Chronicle</h1></header>
     <figure class="vista journey" aria-hidden="true"><div class="jscroll"><canvas class="scene" data-scene="chron"></canvas></div></figure>
     <section class="panel" aria-labelledby="pay-h">
       <h2 id="pay-h">Month reports</h2>
@@ -1265,7 +1348,7 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
     </section>
     <section class="panel" aria-labelledby="look-h">
       <h2 id="look-h">Look and motion</h2>
-      <div class="skin-row"><button type="button" class="motion-btn" id="motion-btn" aria-pressed="true">Animations on</button><button type="button" class="motion-btn" id="tips-btn" aria-pressed="true">Tips on</button><div class="skin" role="group" aria-label="Board style"><button type="button" data-skin="wood" aria-pressed="true">Wood</button><button type="button" data-skin="stone" aria-pressed="false">Stone</button></div></div>
+      <div class="skin-row"><button type="button" class="motion-btn" id="motion-btn" aria-pressed="true">Animations on</button><button type="button" class="motion-btn" id="tips-btn" aria-pressed="true">Tips on</button><div class="skin" role="group" aria-label="Board style"><button type="button" data-skin="wood" aria-pressed="true">Wood</button><button type="button" data-skin="stone" aria-pressed="false">Stone</button><button type="button" data-skin="calm" aria-pressed="false">Calm</button></div></div>
     </section>
     <section class="panel credits" aria-labelledby="credits-h">
       <h2 id="credits-h">Credits</h2>
@@ -1291,11 +1374,11 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
 
 <nav class="tabbar" aria-label="Screens">
   <div class="tabbar-in">
-    <button class="tab" type="button" data-tab="overview"><i class="ti ic-camp" aria-hidden="true"></i>Camp</button>
-    <button class="tab" type="button" data-tab="monthly"><i class="ti ic-quest" aria-hidden="true"></i>Quest</button>
-    <button class="tab" type="button" data-tab="savings"><i class="ti ic-vault" aria-hidden="true"></i>Vault</button>
-    <button class="tab" type="button" data-tab="stats"><i class="ti ic-codex" aria-hidden="true"></i>Codex</button>
-    <button class="tab" type="button" data-tab="history"><i class="ti ic-chron" aria-hidden="true"></i>Chronicle</button>
+    <button class="tab" type="button" data-tab="overview"><i class="ti ic-camp" aria-hidden="true"></i><span data-calm="Home">Camp</span></button>
+    <button class="tab" type="button" data-tab="monthly"><i class="ti ic-quest" aria-hidden="true"></i><span data-calm="Month">Quest</span></button>
+    <button class="tab" type="button" data-tab="savings"><i class="ti ic-vault" aria-hidden="true"></i><span data-calm="Savings">Vault</span></button>
+    <button class="tab" type="button" data-tab="stats"><i class="ti ic-codex" aria-hidden="true"></i><span data-calm="Stats">Codex</span></button>
+    <button class="tab" type="button" data-tab="history"><i class="ti ic-chron" aria-hidden="true"></i><span data-calm="History">Chronicle</span></button>
   </div>
 </nav>
 
@@ -2713,6 +2796,7 @@ function renderStatsBalances() {
   $('st-sav').innerHTML = balancePanel('savings', k);
 }
 
+function calmOn() { return document.documentElement.classList.contains('calm'); }   // the Calm look uses plain names
 function renderOvBalances() {
   const cur = curKey();
   const m = getMonth(cur);
@@ -2730,8 +2814,8 @@ function renderOvBalances() {
     net = '<p class="hint net-line">Net position <b style="' + (n < 0 ? 'color:var(--bad)' : '') + '">' + money(n) + '</b>, savings minus card debt.</p>';
   }
   $('ov-balances').innerHTML = '<div class="balgrid">' +
-    tile('savings', 'Treasure', 'var(--c3)', c.saveTotal, m.savings, 'savings', 'Tap to add your savings') +
-    tile('monthly', 'Boss debt', 'var(--c2)', c.cardTotal, m.cards, 'cards', 'Tap to add your cards') + '</div>' + net;
+    tile('savings', calmOn() ? 'Savings' : 'Treasure', 'var(--c3)', c.saveTotal, m.savings, 'savings', 'Tap to add your savings') +
+    tile('monthly', calmOn() ? 'Card balances' : 'Boss debt', 'var(--c2)', c.cardTotal, m.cards, 'cards', 'Tap to add your cards') + '</div>' + net;
 }
 
 $('ov-balances').addEventListener('click', e => {
@@ -4348,13 +4432,65 @@ function sync() {
 }
 
 /* wood / stone switch, remembered on this phone */
+function applyNames() {   // swaps the game names for plain ones in the Calm look, and back again
+  const on = calmOn();
+  document.querySelectorAll('[data-calm]').forEach(el => {
+    if (el.dataset.rpg == null) el.dataset.rpg = el.textContent;
+    el.textContent = on ? el.dataset.calm : el.dataset.rpg;
+  });
+}
+/* Calm look: plain words in the game sections (hero, steps, card payoff, achievements, month report).
+   The game code is untouched; its text is reworded on screen while the Calm look is on. */
+const CALM_EXACT = { 'Hero': 'You', 'XP': 'Points', 'HP': 'Wages left', 'Quests': 'Steps', 'Boss fights': 'Paying off cards', 'Trophies': 'Achievements', 'unscouted': 'no balance yet', 'SLAIN': 'PAID OFF', 'Scout': 'All balances in' };
+const CALM_WORDS = [
+  ['Penny Pincher', 'Getting started'], ['Squire of Spreadsheets', 'Finding your feet'], ['Bill Slayer', 'Bill tamer'], ['Coin Knight', 'Steady saver'],
+  ['Debt Dragoon', 'Debt shrinker'], ['Treasure Warden', 'Savings builder'], ['Archmage of Budgets', 'Budget pro'], ['Legendary Frugalist', 'Money master'],
+  ['First Quest', 'First month logged'], ['First Victory', 'First month with money left'], ['Hat-trick', 'Three in a row'], ['Iron Streak', 'Six in a row'],
+  ['Chronicler', 'Six months logged'], ['First Blood', 'First card cut'], ['Boss Slain', 'Card paid off'], ['Gold Digger', 'Savings grew'],
+  ['Dragon Hoard', '£1,000 saved'], ['Out of the Red', 'Out of the red'], ['Quartermaster', 'Every step done'], ['Bloodied', 'Halfway down'],
+  ['Knock a boss to half its peak', 'Get a card to half its highest balance'], ['Complete all three quests in a month', 'Complete all three steps in a month'],
+  ['Land a hit on every boss', 'Lower every card balance'], ['Don’t let any boss heal', 'Don’t let any card balance rise'], ['Strike the weak point: ', 'Pay extra on '],
+  ['Add to the hoard', 'Add to your savings'], ['This month’s quests', 'Small steps this month'],
+  ['New quests every month. They tick off as you fill in the month.', 'New steps every month. They tick off as you fill in the month.'],
+  ['XP this month', 'Points this month'], ['All time by source', 'All-time points'], ['No XP yet.', 'No points yet.'], ['XP and chest', 'Points and savings'],
+  ['Quests done', 'Steps done'], ['Card slain', 'Card paid off'], ['Boss pushed to a new phase', 'Card balance milestone'],
+  ['LEVEL UP! ', 'New level! '], ['LV ', 'Level '], [' quests logged', ' months logged'], [' quest logged', ' month logged'], [' of boss damage dealt', ' of card debt paid down'],
+  ['Enter this card’s balance on the Quest Log to start the fight.', 'Enter this card’s balance on the Month screen to start tracking it.'],
+  ['Defeated. Nice work.', 'Paid off. Nice work.'], ['First sighting. Pay it down to land hits.', 'First month tracked. Pay it down to see progress.'],
+  ['Blocked! Balance up ', 'Balance up '], ['Hit for ', 'Down '], ['Weak point · strike here', 'Highest interest · pay this first'], ['Last stand', 'Nearly there'],
+  ['Enraged', 'Halfway'], ['Regenerates ~', 'Interest about '], ['Add its APR to see it regenerate', 'Add its APR to see the interest'], ['Loot: ', 'Freed: '],
+  ['from slain bosses', 'from cards you paid off'], [', your weak point,', ', your highest-interest card,'], [', your smallest boss,', ', your smallest card balance,'],
+  ['it falls in about', 'it is paid off in about'], ['with the freed gold', 'with the freed money'], ['how much sooner it falls', 'how much sooner it is paid off'],
+  [': a hit.', '.'], [': its foe is enraged.', '.'], [': the boss healed.', '.'], ['Boss slain: ', 'Paid off: '], [' is slain: ', ' is gone: '],
+  [', so the chest opened.', '. Well done.'], [', so the chest stayed shut.', '.'], ['the Quest Log', 'the Month screen'], ['the Quest screen', 'the Month screen'],
+  [' XP', ' points']
+];
+function calmText(t) {
+  const k = t.trim(); if (CALM_EXACT[k] != null) return t.replace(k, CALM_EXACT[k]);
+  for (const w of CALM_WORDS) if (t.indexOf(w[0]) >= 0) t = t.split(w[0]).join(w[1]);
+  return t;
+}
+const CALM_AREAS = '#ov-char, #ov-quests, #ov-boss-panel, #ov-trophy-fold, #pd-report, #toast';
+function calmWords(root) {
+  if (!document.documentElement.classList.contains('calm')) return;
+  const areas = root && root.matches && root.matches(CALM_AREAS) ? [root] : document.querySelectorAll(CALM_AREAS);
+  areas.forEach(a => {
+    const w = document.createTreeWalker(a, NodeFilter.SHOW_TEXT);
+    for (let n = w.nextNode(); n; n = w.nextNode()) { const v = calmText(n.nodeValue); if (v !== n.nodeValue) n.nodeValue = v; }
+  });
+}
+new MutationObserver(() => calmWords()).observe(document.body, { childList: true, subtree: true });
 function setSkin(s) {
   document.documentElement.classList.toggle('stone', s === 'stone');
+  document.documentElement.classList.toggle('calm', s === 'calm');
+  applyNames(); try { update(); } catch (e) { /* first run: the app draws itself next */ }
+  calmWords();
+  const tc = document.querySelector('meta[name="theme-color"]'); if (tc) tc.setAttribute('content', s === 'calm' ? '#f4f3ed' : '#0a1015');
   try { localStorage.setItem('left-after-bills-skin', s); } catch (e) {}
   document.querySelectorAll('.skin button').forEach(b => b.setAttribute('aria-pressed', String(b.getAttribute('data-skin') === s)));
 }
 document.querySelectorAll('.skin button').forEach(b => b.addEventListener('click', () => setSkin(b.getAttribute('data-skin'))));
-setSkin(document.documentElement.classList.contains('stone') ? 'stone' : 'wood');
+setSkin(document.documentElement.classList.contains('calm') ? 'calm' : document.documentElement.classList.contains('stone') ? 'stone' : 'wood');
 
 /* how-to tips: shown for the first few opens, then tucked away unless you turn them back on */
 (function () {
