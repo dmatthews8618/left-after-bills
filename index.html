@@ -454,6 +454,7 @@ body { background-image: conic-gradient(var(--grid) 25%, transparent 0 50%, var(
 .hero-split .mini dd { font-size: 0.9rem; }
 .t-val { font-size: 1.05rem; line-height: 1.5; letter-spacing: 0; }
 .stepper .mlabel { font-size: 0.68rem; line-height: 1.5; }
+.stepper .mlabel .mper { display: block; font-size: 0.78em; opacity: 0.85; font-weight: 600; letter-spacing: 0; }
 .fold > summary { font-size: 0.7rem; line-height: 1.6; }
 .hrow .hl b, .hrow .hr b { font-size: 0.68rem; line-height: 1.6; }
 .readout h3 { font-size: 0.7rem; line-height: 1.6; }
@@ -1979,16 +1980,23 @@ function renderOverview() {
 /* ---------- Monthly ---------- */
 function renderStepper() {
   const min = '2020-01', max = stepKey(curKey(), 1);
-  document.querySelectorAll('.mlabel').forEach(el => { el.textContent = keyLabel(ui.sel); });
+  /* a month is named after the payday at its start, and covers everything that pay has to last until the next one */
+  const stored = !!state.months[ui.sel], per = periodOf(ui.sel), now = new Date(), today = isoOf(new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())));
+  const dl = (x, o) => new Date(x + 'T12:00:00').toLocaleDateString('en-GB', o), lastDay = isoOf(new Date(Date.parse(per.to) - 86400000));
+  const future = today < per.from, mName = dl(per.from, { month: 'long' }) + ' pay';
+  const sub = !stored && future ? 'preview · payday ' + dl(per.from, { weekday: 'short', day: 'numeric', month: 'short' })
+    : dl(per.from, { day: 'numeric', month: 'short' }) + ' to ' + dl(lastDay, { day: 'numeric', month: 'short', year: 'numeric' }) + (stored ? '' : ' · not filled in yet');
+  document.querySelectorAll('.mlabel').forEach(el => { el.innerHTML = esc(mName) + '<small class="mper">' + esc(sub) + '</small>'; el.setAttribute('aria-label', mName + ', ' + sub); });
   document.querySelectorAll('.m-prev').forEach(el => { el.disabled = ui.sel <= min; });
   document.querySelectorAll('.m-next').forEach(el => { el.disabled = ui.sel >= max; });
-  const stored = !!state.months[ui.sel];
   let msg = '';
   if (!stored) {
     const v = virtualFor(ui.sel);
-    msg = v.from
-      ? 'This month is not saved yet. It shows a copy of ' + keyLabel(v.from) + ' to start from. Change anything to save it.'
-      : 'This month is not saved yet. Add your wages and bills to start it.';
+    msg = future
+      ? dl(per.from, { month: 'long' }) + '’s pay arrives on ' + dl(per.from, { weekday: 'long', day: 'numeric', month: 'long' }) + '. Until then this is only a preview' + (v.from ? ', copied from ' + dl(periodOf(v.from).from, { month: 'long' }) + ' pay' : '') + '. Fill it in after payday.'
+      : v.from
+        ? 'This pay period is not filled in yet. It shows a copy of ' + dl(periodOf(v.from).from, { month: 'long' }) + ' pay to start from. Change anything to save it.'
+        : 'This pay period is not filled in yet. Add your wages and bills to start it.';
   }
   document.querySelectorAll('.virtual-notice').forEach(el => { el.hidden = stored; el.textContent = msg; });
   $('del-row').hidden = !(stored && Object.keys(state.months).length > 1);
