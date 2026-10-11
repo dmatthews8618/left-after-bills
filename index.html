@@ -3239,14 +3239,13 @@ function renderSpendCard() {
   const rec = spendRec(); card.hidden = !rec.tx.length; if (!rec.tx.length) return;
   const k = paydayMonth(), per = periodOf(k), today = isoOf(new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())));
   const sp = spendIn(per.from, per.to), left = compute(getMonth(k)).left, rest = left - sp.total;
-  const days = Math.max(1, Math.round((Date.parse(per.to) - Date.parse(today)) / 86400000));
   const pct = left > 0 ? Math.min(100, sp.total / left * 100) : 100, over = rest < 0;
   const fromLbl = new Date(per.from + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
   const stale = sp.newest && sp.newest < today ? '<p class="hint">Includes transactions up to ' + new Date(sp.newest + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + '. Import again to update.</p>' : '';
   $('spend-h').textContent = 'Since payday (' + fromLbl + ')';
   $('spend-body').innerHTML = '<div class="spend-big">' + money(sp.total) + ' spent</div>' +
     '<div class="spend-bar' + (over ? ' over' : '') + '"><i style="width:' + pct.toFixed(1) + '%"></i></div>' +
-    '<p class="hint">' + (over ? '<b style="color:var(--bad,#ec7a63)">' + money(-rest) + ' over</b> what was left after bills (' + money(left) + ').' : money(rest) + ' left of ' + money(left) + ' after bills: about ' + money(rest / days) + ' a day for ' + days + (days === 1 ? ' day' : ' days') + '.') + '</p>' +
+    '<p class="hint">' + (over ? '<b style="color:var(--bad,#ec7a63)">' + money(-rest) + ' over</b> what was left after bills (' + money(left) + ').' : money(rest) + ' left of ' + money(left) + ' after bills.') + '</p>' +
     (sp.top.length ? '<p class="spend-top">Most spent at: ' + sp.top.slice(0, 3).map(p => esc(titleCase(p[0])) + ' ' + money(p[1])).join(' · ') + '</p>' : '') + stale;
 }
 function renderBankPanel() {
