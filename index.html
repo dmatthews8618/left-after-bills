@@ -965,6 +965,37 @@ body .compare-list li > span:first-child { min-width: 0; overflow-wrap: anywhere
 .tr-allq { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAZElEQVR42mNgGAUUA0YC8v8JqcVnwP8bm+zhHA2/g1jVs5BiGzZ1LDhs+0+kq/4zURqILPgk1a2KkXgHSTcgOjSGeBcQYxs2dbDQ/h/lyAcXXrb/E04D0NWxkJjI/uNS9J9cAwDehSDkvvPJEAAAAABJRU5ErkJggg==); } .tr-rage { background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABhklEQVR42o2Sv0sCYRzGP+8hCJmKdQ6KdwYuwTWUS9F/IK1ttvcXtPgH1NJWS0FDxG3ut7S0iA2FgQchNPgONngo1nQQXEO9b6co9kzf98f3x/N8H8EvKtVCVHIy7NVtlqHZ6PL2/C4AjHjyf7FfL1OpFiIAQwUKA/9zaQHZGTORIQCJw9MtANqu1I8ARSc9N3m2QUJdKO5tV+oisjPG94YAZO0kgO7s1PI83I0wik4a2RnTdiUD/3NKRHs7p+OSkyGu02ov5GB3IzJujp70x5bbp9noTiW+etc4tTz2do69uk3WTpK1k9xenv9QCIKR8M56kRpRoeikOVk/XiqoARAEI6G4LRJL0Sw5GR6vLv5EVEEQjASsRYrKfr08VUDRmt2OoQLTXNN+mMiQltsH4KV1r/VpuX09mboXO5sWHytfkeo4b3Xx9cXXaZkpISrVQjQ7blzIuCbqfHP0BIBlpoSxyKqzXBc505jIUDsvbuX/ImGZKeF7w8j3hlOc4yPPO1tmSgB8A6FcqhgAPMq7AAAAAElFTkSuQmCC); }
 :root.still .boss .wp { animation: none; }
 </style>
+<style id="readability">
+/* ===== Readability pass: bigger plain text, lighter frames, pixel font only for titles and the big figure ===== */
+body { font-size: 17px; line-height: 1.45; }
+:root:root:root { --ink-3: #ddd0b0; }
+:root:root.stone { --ink-3: #d3d8e0; }
+.hint, .msg, .empty { font-size: 0.95rem; font-weight: 500; line-height: 1.45; }
+:root.no-tips .tip { display: none; }
+/* figures: clear plain digits; the big £ keeps its pixel look */
+body .stat dd, body .mini dd, body .t-val, body .bs-amt, body .brow-head .amt, body .hpn, body .legend .val, body .legend .pc,
+body .money input, body .money span, body .panel-head .sum, body .hrow .hr b, body .bar-line small, body .mini .delta, body .delta,
+body .compare-list .was, body .hrow small, body .compare-list li b, body .net-line b, body .quest .qx, body .narrator .nn, body .beast .facts dd {
+  font-family: var(--font) !important; font-weight: 700 !important; letter-spacing: 0; font-variant-numeric: tabular-nums;
+}
+body .stat dd, body .mini dd, body .t-val, body .tile .t-val { font-size: 1.35rem !important; }
+body .hero-split .mini dd { font-size: 1.5rem !important; }
+body .stats3 .mini dd { font-size: 1.15rem !important; }
+body .money input { font-size: 1.3rem !important; }
+body .bs-amt, body .brow-head .amt, body .hpn, body .legend .val, body .legend .pc, body .panel-head .sum, body .hrow .hr b, body .compare-list li b { font-size: 1.05rem !important; }
+body .bar-line small, body .delta, body .mini .delta, body .hrow small, body .compare-list .was, body .quest .qx { font-size: 0.9rem !important; }
+body .net-line b { font-size: 1.25rem; vertical-align: baseline; }
+.payday .days { font-family: var(--font); font-weight: 800; font-size: 1.05rem; letter-spacing: 0; }
+.fold > summary { font-family: var(--font); font-weight: 800; font-size: 1rem; letter-spacing: 0; text-transform: none; }
+.sect-title { font-family: var(--display); font-size: 0.75rem; line-height: 1.6; color: var(--gold); text-shadow: 2px 2px 0 #1a0f02; margin: 18px 4px 4px; scroll-margin-top: 16px; }
+/* lighter frames: the main card keeps the full board, everything else gets a thin edge */
+.panel, .char { border-width: 14px; border-image-width: 14px; padding: 8px 6px; }
+.char, #tab-savings .hero { margin-top: 30px; }
+.tile, .mini, .stat { padding: 8px 10px; }
+.screen { gap: 18px; }
+/* tab dock: readable labels */
+.tab { font-size: 0.8rem; min-height: 62px; }
+</style>
 
 <script>try { if (localStorage.getItem('left-after-bills-skin') === 'stone') document.documentElement.classList.add('stone'); } catch (e) {}
 window.lowMotion = function () { if (window.__mp === 'on') return false; if (window.__mp === 'off') return true;   /* in-memory choice, for phones that block saving settings */
@@ -992,7 +1023,7 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
         <div class="mini"><dt>Per week</dt><dd id="ov-week">£0</dd></div>
         <div class="mini"><dt>Per day</dt><dd id="ov-day">£0</dd></div>
       </dl>
-      <p class="hint">Per week and per day are what is left, split across the days until payday.</p>
+      <p class="hint tip">Per week and per day are what is left, split across the days until payday.</p>
     </section>
     <section class="panel spend-card" id="spend-card" aria-labelledby="spend-h" hidden><h2 id="spend-h">Since payday</h2><div id="spend-body"></div></section>
     <div id="ov-balances"></div>
@@ -1004,20 +1035,7 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
       <span>These are example figures. Clear them to start with your own.</span>
       <button class="btn" id="clear-examples" type="button">Clear examples</button>
     </div>
-    <section class="char" id="ov-char" aria-label="Your character"></section>
-    <section class="panel" aria-labelledby="ov-quest-h">
-      <h2 id="ov-quest-h">This month’s quests</h2>
-      <div id="ov-quests"></div>
-    </section>
-    <details class="panel fold" id="ov-boss-panel" hidden>
-      <summary><span>Boss fights</span><svg class="chev" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
-      <div class="fold-body"><div id="ov-bosses"></div></div>
-    </details>
-    <details class="panel fold" id="ov-trophy-fold">
-      <summary><span>Trophies <span class="sum-chip" id="ov-trophy-count"></span></span><svg class="chev" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
-      <div class="fold-body"><div class="trophies" id="ov-trophies"></div></div>
-    </details>
-    <div class="btn-row"><button class="btn primary" id="ov-edit" type="button">Fill in or edit this month</button></div>
+    <div class="btn-row"><button class="btn primary" id="ov-edit" type="button">Fill in or edit this month</button><button class="btn" id="ov-adv" type="button">Hero, quests and trophies</button></div>
     <section class="panel pv-off" aria-labelledby="ov-glance-h">
       <h2 id="ov-glance-h">Battle report</h2>
       <dl class="stats3">
@@ -1084,7 +1102,7 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
     </section>
     <section class="panel" aria-labelledby="sv-acc-h">
       <h2 id="sv-acc-h">Savings accounts and pots</h2>
-      <p class="hint">Enter what each one holds now. The change since last month shows under each. A rise opens the chest in the Vault.</p>
+      <p class="hint tip">Enter what each one holds now. The change since last month shows under each. A rise opens the chest in the Vault.</p>
       <ul class="accts" id="sav-list"></ul>
       <div class="btn-row"><button class="btn primary" id="add-sav" type="button">Add savings</button></div>
     </section>
@@ -1092,12 +1110,26 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
     <details class="panel fold">
       <summary><span>Categories and month settings</span><svg class="chev" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
       <div class="fold-body">
-        <p class="hint">Rename categories or add your own. They apply to every month. If you remove one, its bills move to Other.</p>
+        <p class="hint tip">Rename categories or add your own. They apply to every month. If you remove one, its bills move to Other.</p>
         <ul class="catlist" id="catlist"></ul>
         <p class="hint" id="cat-limit" hidden>You have reached the limit of seven categories.</p>
         <div class="btn-row"><button class="btn primary" id="add-cat" type="button">Add category</button></div>
         <div class="btn-row" id="del-row" hidden><button class="btn" id="del-month" type="button">Delete this month</button></div>
       </div>
+    </details>
+    <h2 class="sect-title">Your adventure</h2>
+    <section class="char" id="ov-char" aria-label="Your character"></section>
+    <section class="panel" aria-labelledby="ov-quest-h">
+      <h2 id="ov-quest-h">This month’s quests</h2>
+      <div id="ov-quests"></div>
+    </section>
+    <details class="panel fold" id="ov-boss-panel" hidden>
+      <summary><span>Boss fights</span><svg class="chev" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+      <div class="fold-body"><div id="ov-bosses"></div></div>
+    </details>
+    <details class="panel fold" id="ov-trophy-fold">
+      <summary><span>Trophies <span class="sum-chip" id="ov-trophy-count"></span></span><svg class="chev" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+      <div class="fold-body"><div class="trophies" id="ov-trophies"></div></div>
     </details>
   </section>
 
@@ -1179,12 +1211,12 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
     <figure class="vista journey" aria-hidden="true"><div class="jscroll"><canvas class="scene" data-scene="chron"></canvas></div></figure>
     <section class="panel" aria-labelledby="pay-h">
       <h2 id="pay-h">Month reports</h2>
-      <p class="hint">After each payday, fill the month in on the Quest screen and press Done. Each month has a report: what you beat, what grew and what you earned.</p>
+      <p class="hint tip">After each payday, fill the month in on the Quest screen and press Done. Each month has a report: what you beat, what grew and what you earned.</p>
       <div class="btn-row"><button class="btn primary" id="open-report" type="button">Open month reports</button><button class="btn" id="open-payday" type="button">Fill in this month</button></div>
     </section>
     <section class="panel" aria-labelledby="bank-h">
       <h2 id="bank-h">Bank spending</h2>
-      <p class="hint">Import a statement from Bank of Scotland: the PDF from the banking app, or a CSV from online banking. It is read on this phone only, and nothing is sent anywhere.</p>
+      <p class="hint tip">Import a statement from Bank of Scotland: the PDF from the banking app, or a CSV from online banking. It is read on this phone only, and nothing is sent anywhere.</p>
       <p class="hint" id="bank-status"></p>
       <div class="btn-row"><button class="btn primary" id="bank-import" type="button">Import bank file</button><button class="btn" id="bank-insights" type="button">See spending</button><button class="btn" id="bank-payees" type="button">Sort payees</button><button class="btn" id="bank-clear" type="button" hidden>Clear imported</button><input type="file" id="bank-file" accept=".csv,.pdf,text/csv,text/plain,application/pdf,application/vnd.ms-excel" hidden></div>
       <p class="hint" id="bank-sort"></p>
@@ -1232,7 +1264,7 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
     </section>
     <section class="panel" aria-labelledby="look-h">
       <h2 id="look-h">Look and motion</h2>
-      <div class="skin-row"><button type="button" class="motion-btn" id="motion-btn" aria-pressed="true">Animations on</button><div class="skin" role="group" aria-label="Board style"><button type="button" data-skin="wood" aria-pressed="true">Wood</button><button type="button" data-skin="stone" aria-pressed="false">Stone</button></div></div>
+      <div class="skin-row"><button type="button" class="motion-btn" id="motion-btn" aria-pressed="true">Animations on</button><button type="button" class="motion-btn" id="tips-btn" aria-pressed="true">Tips on</button><div class="skin" role="group" aria-label="Board style"><button type="button" data-skin="wood" aria-pressed="true">Wood</button><button type="button" data-skin="stone" aria-pressed="false">Stone</button></div></div>
     </section>
     <section class="panel credits" aria-labelledby="credits-h">
       <h2 id="credits-h">Credits</h2>
@@ -2766,7 +2798,7 @@ function questPanel(g) {
   const qs = questsFor(curKey()), c = compute(getMonth(curKey()));
   if (!qs.length || (c.wage <= 0 && c.total <= 0)) return '<p class="empty">Quests appear once this month has wages and bills.</p>';
   return '<ul class="quests">' + qs.map(q => '<li class="quest' + (q.done ? ' done' : '') + '"><span class="qbox" aria-hidden="true">' + (q.done ? '✓' : '') + '</span><span class="qt">' + esc(q.text) + '</span><span class="qx">' + (q.done ? '+' : '') + q.xp + ' XP</span><span class="sr">' + (q.done ? 'Done' : 'Not yet') + '</span></li>').join('') + '</ul>' +
-    '<p class="hint">New quests every month. They tick off as you fill in the month.</p>';
+    '<p class="hint tip">New quests every month. They tick off as you fill in the month.</p>';
 }
 const XP_LABEL = { logged: 'Logged the month', black: 'Finished in the black', quests: 'Quests done', cardhit: 'Card balance down', cardslain: 'Card slain', enrage: 'Boss pushed to a new phase', savings: 'Savings went up', billhit: 'Bills lower than last month (max 3)', billslain: 'Bills slain' };
 function xpLines(src) {   // { source: { xp, n } } -> list rows, biggest first
@@ -2872,6 +2904,7 @@ function setTab(name) {
 }
 
 document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => setTab(b.getAttribute('data-tab'))));
+$('ov-adv').addEventListener('click', () => { setTab('monthly'); const h = document.querySelector('#tab-monthly .sect-title'); if (h) h.scrollIntoView({ block: 'start' }); });
 document.querySelectorAll('.m-prev').forEach(b => b.addEventListener('click', () => setMonth(stepKey(ui.sel, -1))));
 document.querySelectorAll('.m-next').forEach(b => b.addEventListener('click', () => setMonth(stepKey(ui.sel, 1))));
 
@@ -3180,7 +3213,7 @@ function pdSpendHtml(k) {
   const outs = ins.outs.length ? '<section class="panel"><h2>Also went out</h2><ul class="rep-list">' + ins.outs.map(O => '<li><i class="cat-dot" style="background:' + groupColour(O.id) + '"></i> ' + esc(groupName(O.id)) + ': ' + money(O.total) + ' (' + O.n + ')</li>').join('') + '</ul><p class="hint">Not counted as spending, because left after bills already covers these.</p></section>' : '';
   return nav + head + sortNote +
     '<section class="panel"><h2>Spent</h2><div class="rep-big">' + money(ins.total) + '</div><p class="hint">' + ins.count + (ins.count === 1 ? ' payment' : ' payments') + ' over ' + days + (days === 1 ? ' day' : ' days') + ', about ' + money(ins.total / days) + ' a day.</p></section>' +
-    '<section class="panel"><h2>Where it went</h2>' + (groups || '<p class="hint">No spending in this pay period yet.</p>') + '<p class="hint">Tap a group to see its places. If a place is in the wrong group, change it there and the app remembers.</p></section>' +
+    '<section class="panel"><h2>Where it went</h2>' + (groups || '<p class="hint">No spending in this pay period yet.</p>') + '<p class="hint tip">Tap a group to see its places. If a place is in the wrong group, change it there and the app remembers.</p></section>' +
     '<section class="panel"><h2>Most often</h2>' + (ins.frequent.length ? ins.frequent.slice(0, 8).map(p => placeRow(p, p.n + (p.n === 1 ? ' time' : ' times') + ' this pay period · ' + money(p.total) + ' · ' + groupName(p.g))).join('') : '<p class="hint">Nothing yet.</p>') + '</section>' +
     '<section class="panel"><h2>Biggest payments</h2>' + (ins.biggest.length ? '<ul class="rep-list">' + ins.biggest.map(t => '<li>' + esc(short(t[0])) + ' · ' + esc(titleCase(placeOf(t[3]))) + ': ' + money(t[1]) + '</li>').join('') + '</ul>' : '<p class="hint">Nothing yet.</p>') + '</section>' + outs;
 }
@@ -3216,7 +3249,7 @@ function pdPayeesHtml() {
   const first = rec.tx[0][0], last = rec.tx[rec.tx.length - 1][0];
   const catRows = cats.map(c => '<div class="py-catrow"><button type="button" class="py-col" data-col="' + esc(c[0]) + '" style="background:' + c[2] + '" aria-label="Change the colour of ' + esc(c[1]) + '"></button><input class="py-cname" data-cname="' + esc(c[0]) + '" value="' + esc(c[1]) + '" maxlength="30" aria-label="Category name"><select class="py-kind" data-kind="' + esc(c[0]) + '" aria-label="' + esc(c[1]) + ' counts as">' + CAT_KINDS.map(k => '<option value="' + k[0] + '"' + (k[0] === c[3] ? ' selected' : '') + '>' + k[1] + '</option>').join('') + '</select><button type="button" class="btn py-del" data-del="' + esc(c[0]) + '"' + (cats.length < 2 ? ' disabled' : '') + '>' + (pd.delArm === c[0] ? 'Sure?' : 'Remove') + '</button></div>').join('');
   return '<section class="panel"><h2>Payees</h2><p class="hint">' + all.length + ' payees across all your statements, ' + esc(short(first)) + ' to ' + esc(short(last)) + '. Counts here are all-time, not one pay period. ' + (todo.length ? todo.length + ' still to sort.' : 'All sorted.') + '</p>' +
-      (guessed.length ? '<div class="btn-row"><button class="btn primary" id="py-accept" type="button">Accept all ' + guessed.length + ' guesses</button></div><p class="hint">Guesses come from the name and have a question mark. Accept them all, then fix any that are wrong.</p>' : '') +
+      (guessed.length ? '<div class="btn-row"><button class="btn primary" id="py-accept" type="button">Accept all ' + guessed.length + ' guesses</button></div><p class="hint tip">Guesses come from the name and have a question mark. Accept them all, then fix any that are wrong.</p>' : '') +
       '<p class="msg" id="py-msg" role="status">' + esc(pd.msg || '') + '</p></section>' +
     chips +
     '<div class="py-tools"><input type="search" id="py-q" placeholder="Search payees" value="' + esc(pd.q || '') + '" aria-label="Search payees" autocomplete="off"><select id="py-sort" aria-label="Order">' + PY_SORTS.map(x => '<option value="' + x[0] + '"' + (x[0] === pd.ps ? ' selected' : '') + '>' + x[1] + '</option>').join('') + '</select></div>' +
@@ -4320,6 +4353,16 @@ function setSkin(s) {
 }
 document.querySelectorAll('.skin button').forEach(b => b.addEventListener('click', () => setSkin(b.getAttribute('data-skin'))));
 setSkin(document.documentElement.classList.contains('stone') ? 'stone' : 'wood');
+
+/* how-to tips: shown for the first few opens, then tucked away unless you turn them back on */
+(function () {
+  const tb = document.getElementById('tips-btn'), root = document.documentElement;
+  let pref = null, opens = 0;
+  try { pref = localStorage.getItem('left-after-bills-tips'); opens = (parseInt(localStorage.getItem('left-after-bills-opens') || '0', 10) || 0) + 1; localStorage.setItem('left-after-bills-opens', String(opens)); } catch (e) {}
+  const show = () => { const on = pref ? pref === 'on' : opens <= 5; root.classList.toggle('no-tips', !on); if (tb) { tb.setAttribute('aria-pressed', String(on)); tb.textContent = on ? 'Tips on' : 'Tips off'; } };
+  if (tb) tb.addEventListener('click', () => { pref = root.classList.contains('no-tips') ? 'on' : 'off'; try { localStorage.setItem('left-after-bills-tips', pref); } catch (e) {} show(); });
+  show();
+})();
 
 /* animations on/off, remembered on this phone (overrides the phone's reduce-motion setting) */
 const mb = document.getElementById('motion-btn');
