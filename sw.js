@@ -1,6 +1,6 @@
 /* Left After Bills: keeps the app on the phone so it opens offline.
    Your figures are never stored here; they stay in the phone's own browser storage. */
-const CACHE = 'left-after-bills-v3';
+const CACHE = 'left-after-bills-v4';
 const FILES = ['./', './index.html', './manifest.json', './chest-192.png', './chest-512.png', './pdf.min.mjs', './pdf.worker.min.mjs'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
