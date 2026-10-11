@@ -1496,11 +1496,7 @@ function cleanState(o) {
     months[curKey()] = cleanMonth(o, ids);
   }
   const cur = curKey();
-  if (!months[cur]) {
-    const src = nearestMonth(months, cur);
-    const m = src ? months[src] : { wage: '', bills: [], cards: [], savings: [] };
-    months[cur] = cloneMonth(m);
-  }
+  // the current month is not forced into storage: if it is missing (e.g. you deleted it) it shows as a virtual copy until you edit it
   const out = { cats, months, example: !!o.example, cardsSeeded: !!o.cardsSeeded };
   if (!out.cardsSeeded) {
     Object.keys(months).forEach(k => { if (!months[k].cards.length) importCards(months[k]); });
@@ -1919,13 +1915,23 @@ function spendInsights(from, to) {   // to is exclusive
 // LOGIC-END
 
 /* ---------- storage ---------- */
+const KEYSAFE = 'left-after-bills-v2-safe';   // last copy that loaded fine
 function load() {
-  try {
-    const raw = localStorage.getItem(KEY2);
-    if (raw) return cleanState(JSON.parse(raw));
-    const old = localStorage.getItem(KEY1);
-    if (old) return cleanState(JSON.parse(old));
-  } catch (e) {}
+  let saw = false;
+  for (const k of [KEY2, KEYSAFE, KEY1]) {
+    let raw = null;
+    try { raw = localStorage.getItem(k); } catch (e) {}
+    if (!raw) continue;
+    saw = true;
+    try {
+      const s = cleanState(JSON.parse(raw));
+      try { localStorage.setItem(KEYSAFE, raw); } catch (e) {}
+      return s;
+    } catch (e) {
+      try { localStorage.setItem(k + '-broken-' + Date.now(), raw); } catch (e2) {}   // never lose it
+    }
+  }
+  if (saw) return cleanState({});   // your data could not be read: start blank, never practice figures
   return exampleState();
 }
 function save() {
