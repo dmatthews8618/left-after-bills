@@ -181,6 +181,47 @@ button, input, select { font-family: inherit; color: inherit; }
 .hint { font-size: 0.85rem; color: var(--ink-3); font-weight: 600; }
 .credit-list { margin: 8px 0 0; padding-left: 1.1rem; display: grid; gap: 6px; font-size: 0.85rem; color: var(--ink-3); font-weight: 600; }
 .credit-list a { color: inherit; text-decoration: underline; }
+html.sheet-open { overflow: hidden; }
+.spend-big { font-size: 1.35rem; font-weight: 800; color: #ffe3a0; }
+.spend-bar { height: 10px; border-radius: 5px; background: rgba(0, 0, 0, 0.35); overflow: hidden; margin: 8px 0; }
+.spend-bar i { display: block; height: 100%; background: var(--c3); }
+.spend-bar.over i { background: var(--bad, #ec7a63); }
+.spend-top { font-size: 0.8rem; color: var(--ink-3); font-weight: 600; margin-top: 4px; }
+.bank-set summary { cursor: pointer; font-weight: 700; padding: 6px 0; }
+.bank-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 0.85rem; font-weight: 600; }
+.bank-row label { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+.bank-row input[type=checkbox] { width: 20px; height: 20px; flex: none; }
+.bank-row .amt { white-space: nowrap; color: var(--ink-3); }
+.bank-row .btn { min-height: 34px; padding: 4px 10px; font-size: 0.75rem; }
+.bank-h3 { margin: 12px 0 4px; font-size: 0.85rem; }
+.sheet { position: fixed; inset: 0; z-index: 60; overflow-y: auto; -webkit-overflow-scrolling: touch; background: #0b1116; color: #f0e6cc; padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px); }
+.sheet[hidden] { display: none; }
+.sheet-in { max-width: 560px; margin: 0 auto; padding: 14px 14px 48px; display: grid; gap: 14px; }
+.sheet-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.sheet-top h2 { margin: 0; font-size: 1.15rem; color: #ffd24a; }
+#pd-form, #pd-report { display: grid; gap: 14px; }
+.pd-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.pd-row:last-child { border-bottom: 0; }
+.pd-n { font-weight: 700; overflow-wrap: anywhere; }
+.pd-f { display: grid; gap: 2px; }
+.pd-l { font-size: 0.7rem; color: var(--ink-3); }
+.pd-row .money { width: 8.5rem; }
+.pd-two { display: flex; gap: 8px; }
+.pd-slot { grid-column: 1 / -1; min-height: 1.1em; }
+.pd-d { font-size: 0.78rem; color: var(--ink-3); font-weight: 700; }
+.pd-d.dn { color: var(--good, #7fd59a); }
+.pd-d.ups { color: var(--bad, #ec7a63); }
+.rep-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.rep-list li { display: flex; gap: 8px; padding: 6px 10px; border-radius: 10px; background: rgba(0, 0, 0, 0.18); font-size: 0.88rem; font-weight: 600; }
+.rep-list li::before { font-weight: 800; flex: none; }
+.rep-good li::before { content: '\2713'; color: var(--good, #7fd59a); }
+.rep-bad li::before { content: '!'; color: var(--bad, #ec7a63); }
+.rep-quest li::before { content: '\2610'; color: var(--ink-3); }
+.rep-quest li.done::before { content: '\2611'; color: var(--good, #7fd59a); }
+.rep-big { font-size: 1.6rem; font-weight: 800; color: #ffe3a0; margin: 2px 0; }
+.rep-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.rep-nav span { font-weight: 700; }
+.payday-nudge .btn-row, .backup-nudge .btn-row { margin: 0; }
 .empty { font-size: 0.92rem; color: var(--ink-3); padding-block: 4px; font-weight: 600; }
 .warn-note { font-size: 0.85rem; color: var(--bad); font-weight: 700; }
 
@@ -872,6 +913,9 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
     <div class="skin-row"><button type="button" class="motion-btn" id="motion-btn" aria-pressed="true">Animations on</button><div class="skin" role="group" aria-label="Board style"><button type="button" data-skin="wood" aria-pressed="true">Wood</button><button type="button" data-skin="stone" aria-pressed="false">Stone</button></div></div>
     <figure class="vista" aria-hidden="true"><canvas class="scene" data-scene="camp"></canvas></figure>
     <button class="narrator" id="ov-narr" type="button" aria-live="polite" hidden><span class="nt"></span><span class="nn"></span></button>
+    <div class="notice payday-nudge" id="payday-nudge" role="status" hidden><span id="payday-nudge-t"></span><span class="btn-row"><button class="btn primary" id="payday-start" type="button">Fill it in</button><button class="btn" id="payday-later" type="button">Not now</button></span></div>
+    <section class="panel spend-card" id="spend-card" aria-labelledby="spend-h" hidden><h2 id="spend-h">Since payday</h2><div id="spend-body"></div></section>
+    <div class="notice backup-nudge" id="backup-nudge" role="status" hidden><span id="backup-nudge-t"></span><span class="btn-row"><button class="btn primary" id="nudge-save" type="button">Save backup</button><button class="btn" id="nudge-later" type="button">Later</button></span></div>
     <div class="notice" id="example-notice" hidden>
       <span>These are example figures. Clear them to start with your own.</span>
       <button class="btn" id="clear-examples" type="button">Clear examples</button>
@@ -1076,12 +1120,32 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
       <h2 id="hi-list-h">Month by month</h2>
       <div class="hlist" id="hi-list"></div>
     </section>
+    <section class="panel" aria-labelledby="bank-h">
+      <h2 id="bank-h">Bank spending</h2>
+      <p class="hint">Import a CSV file of your transactions from Bank of Scotland online banking. It is read on this phone only, and nothing is sent anywhere.</p>
+      <p class="hint" id="bank-status"></p>
+      <div class="btn-row"><button class="btn primary" id="bank-import" type="button">Import bank file</button><button class="btn" id="bank-clear" type="button" hidden>Clear imported</button><input type="file" id="bank-file" accept=".csv,text/csv,text/plain,application/vnd.ms-excel" hidden></div>
+      <details class="bank-set"><summary>What counts as spending</summary><div id="bank-types"></div><div id="bank-places"></div></details>
+      <p class="msg" id="bank-msg" role="status"></p>
+    </section>
+    <section class="panel" aria-labelledby="pay-h">
+      <h2 id="pay-h">Payday</h2>
+      <p class="hint">Fill in a month in one place, then see what happened: what you beat, what grew, and what you earned.</p>
+      <div class="btn-row"><button class="btn primary" id="open-payday" type="button">Payday routine</button><button class="btn" id="open-report" type="button">Month report</button></div>
+    </section>
     <section class="panel backup" aria-labelledby="backup-h">
       <h2 id="backup-h">Backup</h2>
       <p class="hint">Your figures are saved in this browser on this phone only. Clearing your browser data would erase every month, so copy a backup now and then and keep it in a note.</p>
+      <p class="hint" id="backup-status" role="status"></p>
+      <div class="btn-row">
+        <button class="btn primary" id="save-backup-file" type="button">Save backup file</button>
+        <button class="btn" id="share-backup" type="button" hidden>Share backup</button>
+      </div>
       <div class="btn-row">
         <button class="btn" id="copy-backup" type="button">Copy backup</button>
         <button class="btn" id="open-restore" type="button">Restore backup</button>
+        <button class="btn" id="restore-from-file" type="button">Restore from file</button>
+        <input type="file" id="restore-file" accept=".json,.txt,application/json,text/plain" hidden>
       </div>
       <div class="btn-row"><button class="btn" id="load-demo" type="button">Load practice data</button></div>
       <p class="hint">Practice data is a made-up year to play with. It replaces everything, so copy a backup first and restore it when you’re done.</p>
@@ -1104,6 +1168,14 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
     </section>
   </section>
 </main>
+
+<div class="sheet" id="pd-sheet" role="dialog" aria-modal="true" aria-labelledby="pd-title" hidden>
+  <div class="sheet-in">
+    <div class="sheet-top"><h2 id="pd-title"></h2><button class="btn" id="pd-close" type="button">Close</button></div>
+    <div id="pd-form" hidden></div>
+    <div id="pd-report" hidden></div>
+  </div>
+</div>
 
 <nav class="tabbar" aria-label="Screens">
   <div class="tabbar-in">
@@ -1652,6 +1724,52 @@ function slainBills(k) {   // bills that cost something last month and are gone,
     const c = cur.find(x => sameBill(x, p));
     return !c || num(c.amount) <= 0;
   });
+}
+/* ---------- payday routine and month report (pure: nothing here changes any figure) ---------- */
+function paydayMonth(now) {   // the latest month whose payday (its last Friday) has come: the month to fill in
+  const d = now || new Date(), today = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+  let y = d.getFullYear(), mo = d.getMonth();
+  if (lastFriday(y, mo).getTime() > today) { mo--; if (mo < 0) { mo = 11; y--; } }
+  return y + '-' + pad(mo + 1);
+}
+const CHEST_NAMES = ['Locked crate', 'Wooden chest', 'Iron-bound chest', 'Silver chest', 'Gilded chest', 'Arcane chest'];
+const saveTierOf = v => v <= 0 ? 0 : v < 1000 ? 1 : v < 2500 ? 2 : v < 5000 ? 3 : v < 10000 ? 4 : 5;
+function monthReport(k) {   // what happened this month compared with last: good news, things to watch, quests, XP, the chest
+  const m = getMonth(k), c = compute(m), pk = prevKeyOf(k), pm = pk ? state.months[pk] : null, pc = pm ? compute(pm) : null;
+  const good = [], bad = [], pl = pk ? keyLabel(pk, true) : '';
+  const started = c.wage > 0 || c.total > 0;
+  if (started) { if (c.left >= 0) good.push('In the black: ' + money(c.left) + ' left after bills.'); else bad.push('In the red: ' + money(-c.left) + ' short after bills.'); }
+  if (pc) {
+    const dl = c.left - pc.left, dt = c.total - pc.total;
+    if (dl > 0.005) good.push('Left after bills is up ' + money(dl) + ' on ' + pl + '.'); else if (dl < -0.005) bad.push('Left after bills is down ' + money(-dl) + ' on ' + pl + '.');
+    if (dt < -0.005) good.push('Your bills total is down ' + money(-dt) + '.'); else if (dt > 0.005) bad.push('Your bills total is up ' + money(dt) + '.');
+  }
+  (m.bills || []).forEach(b => {
+    if (b.card || b.cat === 'cards' || num(b.amount) <= 0) return;
+    const ch = billChangeOf(b, k); if (!ch || Math.abs(ch.d) < 0.005) return;
+    if (ch.d < 0) good.push((b.name || 'A bill') + ' is down ' + money(-ch.d) + ': a hit.'); else bad.push((b.name || 'A bill') + ' is up ' + money(ch.d) + ': its foe is enraged.');
+  });
+  slainBills(k).forEach(p => good.push((p.name || 'A bill') + ' is slain: ' + money(num(p.amount)) + ' a month freed.'));
+  (m.cards || []).forEach(a => {
+    if (!hasBal(a.balance)) return;
+    const ch = acctChange('cards', a, k); if (!ch) return;
+    const v = num(a.balance), n = a.name || 'A card';
+    if (ch.d < -0.005) good.push(v === 0 ? 'Boss slain: ' + n + ' is paid off.' : n + ' is down ' + money(-ch.d) + ' (now ' + money(v) + ').');
+    else if (ch.d > 0.005) bad.push(n + ' is up ' + money(ch.d) + ' (now ' + money(v) + '): the boss healed.');
+  });
+  (m.savings || []).forEach(a => {
+    if (!hasBal(a.balance)) return;
+    const ch = acctChange('savings', a, k); if (!ch) return;
+    const n = a.name || 'A pot';
+    if (ch.d > 0.005) good.push(n + ' is up ' + money(ch.d) + ' (now ' + money(num(a.balance)) + ').');
+    else if (ch.d < -0.005) bad.push(n + ' is down ' + money(-ch.d) + ' (now ' + money(num(a.balance)) + ').');
+  });
+  let quests = []; try { quests = started ? questsFor(k) : []; } catch (e) { /* none */ }
+  const g = gameState(), sum = o => Object.keys(o || {}).reduce((t, x) => t + o[x].xp, 0);
+  let before = 0; Object.keys(g.xpBy).forEach(x => { if (x < k) before += sum(g.xpBy[x]); });
+  const gained = sum(g.xpBy[k]), lb = levelOf(before), la = levelOf(before + gained);
+  const chest = pc && c.saveTotal > pc.saveTotal + 0.005 ? { up: c.saveTotal - pc.saveTotal, from: saveTierOf(pc.saveTotal), to: saveTierOf(c.saveTotal) } : null;
+  return { key: k, prev: pk, c, pc, good, bad, quests, xp: { gained, rows: g.xpBy[k] || {}, lvBefore: lb, lvAfter: la }, chest, started };
 }
 // LOGIC-END
 
@@ -2576,6 +2694,10 @@ function update() {
   else if (ui.tab === 'savings') renderSavings();
   else if (ui.tab === 'stats') renderStats();
   else if (ui.tab === 'history') renderHistory();
+  renderBackupUi();
+  renderPaydayNudge();
+  renderSpendCard();
+  renderBankPanel();
 }
 
 function setTab(name) {
@@ -2720,6 +2842,60 @@ function backupText() {
 }
 function say(t) { $('backup-msg').textContent = t; }
 
+/* when did you last back up? (one small separate setting: it never touches your figures or the main save) */
+const BKEY = 'left-after-bills-backup';
+function backupRec() { try { return JSON.parse(localStorage.getItem(BKEY) || 'null'); } catch (e) { return null; } }
+function setBackupRec(o) { try { localStorage.setItem(BKEY, JSON.stringify(o)); } catch (e) {} }
+const backupSig = () => hashStr(backupText());
+function markBackedUp() { setBackupRec({ at: Date.now(), sig: backupSig() }); renderBackupUi(); }
+function ago(ms) { const d = Math.floor((Date.now() - ms) / 86400000); return d <= 0 ? 'today' : d === 1 ? 'yesterday' : d + ' days ago'; }
+function backupState() { const r = backupRec(); return { never: !(r && r.at), at: r && r.at, changed: !(r && r.at) || r.sig !== backupSig(), snooze: (r && r.snooze) || 0 }; }
+function renderBackupUi() {
+  const st = backupState(), el = $('backup-status');
+  if (el) el.textContent = st.never ? 'You have not saved a backup yet.' : 'Last backup: ' + ago(st.at) + (st.changed ? ', and you have changes since.' : ', nothing new since.');
+  const nudge = $('backup-nudge'); if (!nudge) return;
+  const hasData = !state.example && Object.keys(state.months).length > 0;
+  const due = hasData && st.changed && (st.never || Date.now() - st.at > 2 * 86400000) && Date.now() > st.snooze && !paydayIsDue();   // the payday prompt goes first; its report ends with a backup button
+  nudge.hidden = !due;
+  if (due) $('backup-nudge-t').textContent = st.never ? 'Your figures only live on this phone. Save a backup file so they can’t be lost.' : 'You have changes since your last backup (' + ago(st.at) + ').';
+}
+function backupFileName() { const d = new Date(); return 'left-after-bills-backup-' + d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + '.json'; }
+function saveBackupFile() {
+  const text = backupText(), name = backupFileName();
+  try {
+    const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+    const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    markBackedUp();
+    say('Backup file saved as ' + name + '. Find it in your Downloads, and keep a copy somewhere safe (email it to yourself or put it in Drive).');
+  } catch (e) { say('Could not save a file here. Use Copy backup instead.'); }
+}
+async function shareBackup() {
+  const text = backupText(), name = backupFileName();
+  try {
+    let f = new File([text], name, { type: 'application/json' });
+    if (!(navigator.canShare && navigator.canShare({ files: [f] }))) f = new File([text], name.replace('.json', '.txt'), { type: 'text/plain' });
+    if (!(navigator.canShare && navigator.canShare({ files: [f] }))) throw new Error('nosupport');
+    await navigator.share({ files: [f], title: 'Left After Bills backup' });
+    markBackedUp(); say('Backup shared.');
+  } catch (e) { if (e && e.name === 'AbortError') return; say('Sharing is not available here. Use Save backup file.'); }
+}
+$('save-backup-file').addEventListener('click', saveBackupFile);
+$('share-backup').addEventListener('click', shareBackup);
+$('nudge-save').addEventListener('click', saveBackupFile);
+$('nudge-later').addEventListener('click', () => { const r = backupRec() || {}; r.snooze = Date.now() + 86400000; setBackupRec(r); renderBackupUi(); });
+try { if (navigator.canShare && navigator.canShare({ files: [new File(['x'], 'a.txt', { type: 'text/plain' })] })) $('share-backup').hidden = false; } catch (e) { /* sharing is optional */ }
+$('restore-from-file').addEventListener('click', () => $('restore-file').click());
+$('restore-file').addEventListener('change', async e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  try {
+    const t = await f.text();
+    $('restore-box').hidden = false; $('backup-text').value = t;
+    say('File loaded (' + f.name + '). Press Restore now to replace everything in the app, or leave it to cancel.');
+  } catch (er) { say('Could not read that file.'); }
+  e.target.value = '';
+});
+
 $('copy-backup').addEventListener('click', () => {
   const text = backupText();
   const showBox = () => {
@@ -2729,7 +2905,7 @@ $('copy-backup').addEventListener('click', () => {
     say('Copying was blocked. The backup is in the box below: select it and copy it by hand.');
   };
   try {
-    navigator.clipboard.writeText(text).then(() => say('Backup copied. Paste it into a note to keep it safe.'), showBox);
+    navigator.clipboard.writeText(text).then(() => { markBackedUp(); say('Backup copied. Paste it into a note to keep it safe.'); }, showBox);
   } catch (e) { showBox(); }
 });
 $('open-restore').addEventListener('click', () => {
@@ -2746,10 +2922,274 @@ $('do-restore').addEventListener('click', () => {
     save(); ui.sel = curKey(); ui.hsel = -1;
     syncMonthInputs(); renderStepper(); renderCatEditor(); renderBills(); update();
     $('restore-box').hidden = true;
+    markBackedUp();
     say('Backup restored.');
   } catch (e) {
     say('That did not look like a backup. Copy the whole text again and retry.');
   }
+});
+
+/* ---------- payday routine: one page to fill in a month, and the month report ---------- */
+const PKEY = 'left-after-bills-payday';   // which payday you last filled in (a tiny separate setting; your figures are never touched)
+function paydayRec() { try { return JSON.parse(localStorage.getItem(PKEY) || 'null') || {}; } catch (e) { return {}; } }
+function setPaydayRec(o) { try { localStorage.setItem(PKEY, JSON.stringify(o)); } catch (e) {} }
+function paydayIsDue() { const rec = paydayRec(), k = paydayMonth(); return !state.example && Object.keys(state.months).length > 0 && !!rec.done && rec.done < k && Date.now() > (rec.snooze || 0); }
+function renderPaydayNudge() {
+  const el = $('payday-nudge'); if (!el) return;
+  const k = paydayMonth(), rec = paydayRec();
+  if (!rec.done) { rec.done = k; setPaydayRec(rec); }   // first time: assume you are up to date, so the prompt starts at the next payday
+  const due = paydayIsDue();
+  el.hidden = !due;
+  if (due) $('payday-nudge-t').textContent = 'Payday has passed. ' + keyLabel(k) + ' is ready to fill in.';
+}
+const pd = { k: null, view: 'form' };
+function pdChip(d, goodWhenDown, pk) {
+  if (d == null || !pk) return '';
+  if (Math.abs(d) < 0.005) return '<span class="pd-d">no change since ' + keyLabel(pk, true) + '</span>';
+  const up = d > 0, good = goodWhenDown ? !up : up;
+  return '<span class="pd-d ' + (good ? 'dn' : 'ups') + '">' + (up ? '↑ ' : '↓ ') + money(Math.abs(d)) + ' since ' + keyLabel(pk, true) + '</span>';
+}
+function pdChipFor(kind, id, k) {   // how this figure compares with last month (green = better)
+  const m = getMonth(k);
+  if (kind === 'wage') { const pk = prevKeyOf(k); return pk ? pdChip(num(m.wage) - num(state.months[pk].wage), false, pk) : ''; }
+  if (kind === 'bill') { const b = (m.bills || []).find(x => x.id === id); if (!b || b.cat === 'cards') return ''; const ch = billChangeOf(b, k); return ch ? pdChip(ch.d, true, ch.pk) : ''; }
+  if (kind === 'card') { const a = (m.cards || []).find(x => x.id === id); if (!a || !hasBal(a.balance)) return ''; const ch = acctChange('cards', a, k); return ch ? pdChip(ch.d, true, ch.pk) : ''; }
+  if (kind === 'sav') { const a = (m.savings || []).find(x => x.id === id); if (!a || !hasBal(a.balance)) return ''; const ch = acctChange('savings', a, k); return ch ? pdChip(ch.d, false, ch.pk) : ''; }
+  return '';
+}
+function pdFormHtml(k) {
+  const m = getMonth(k), pk = prevKeyOf(k);
+  const field = (kind, id, v, lab) => '<label class="pd-f"><span class="pd-l">' + lab + '</span><span class="money"><span aria-hidden="true">£</span><input inputmode="decimal" autocomplete="off" placeholder="0" data-k="' + kind + '" data-id="' + esc(id) + '" value="' + esc(v) + '" aria-label="' + esc(lab) + '"></span></label>';
+  const row = (kind, id, name, inner) => '<div class="pd-row" data-kind="' + kind + '" data-id="' + esc(id) + '"><div class="pd-n">' + esc(name) + '</div>' + inner + '<div class="pd-slot">' + pdChipFor(kind, id, k) + '</div></div>';
+  const bills = (m.bills || []).filter(b => !b.card);
+  const cards = m.cards || [], sav = m.savings || [];
+  return '<p class="hint" style="color:#cdbf9a">Fill in this month’s figures. They save as you type. Green is better than ' + (pk ? keyLabel(pk) : 'last month') + ', red is worse.</p>' +
+    '<section class="panel"><h2>Wages</h2>' + row('wage', 'w', 'Paid on the last Friday', field('wage', 'w', m.wage, 'Wages')) + '</section>' +
+    '<section class="panel"><h2>Bills</h2>' + (bills.length ? bills.map(b => row('bill', b.id, b.name || 'Untitled bill', field('bill', b.id, b.amount, (b.name || 'Bill') + ' amount'))).join('') : '<p class="hint">No bills yet. Add them on the Quest screen.</p>') + '<p class="hint">To add, rename or remove a bill, use the Quest screen.</p></section>' +
+    '<section class="panel"><h2>Credit cards</h2>' + (cards.length ? cards.map(a => {
+      const old = hasPay(a) ? null : payBill(m, a), pv = hasPay(a) ? a.pay : old && old.card !== '*' ? old.amount : '';
+      return row('card', a.id, a.name || 'Untitled card', '<div class="pd-two">' + field('cardbal', a.id, a.balance, (a.name || 'Card') + ' balance') + field('cardpay', a.id, pv, (a.name || 'Card') + ' paid this month') + '</div>');
+    }).join('') : '<p class="hint">No cards this month. Add them on the Quest screen.</p>') + '</section>' +
+    '<section class="panel"><h2>Savings</h2>' + (sav.length ? sav.map(a => row('sav', a.id, a.name || 'Untitled pot', field('sav', a.id, a.balance, (a.name || 'Pot') + ' balance'))).join('') : '<p class="hint">No savings pots this month. Add them on the Vault screen.</p>') + '</section>' +
+    '<div class="btn-row"><button class="btn primary" id="pd-done" type="button">Done, show my report</button></div>';
+}
+function pdReportHtml(k) {
+  const keys = Object.keys(state.months).sort();
+  if (!state.months[k]) return '<section class="panel"><h2>Not saved yet</h2><p class="hint">' + esc(keyLabel(k)) + ' has no figures yet. Fill it in with the payday routine first.</p><div class="btn-row"><button class="btn primary" id="pd-to-form" type="button">Fill in ' + esc(keyLabel(k)) + '</button></div></section>';
+  const r = monthReport(k), i = keys.indexOf(k), list = (cls, a, none) => '<ul class="rep-list ' + cls + '">' + (a.length ? a.map(t => '<li>' + esc(t) + '</li>').join('') : '<li style="opacity:.75">' + none + '</li>') + '</ul>';
+  const lvUp = r.xp.lvAfter.L > r.xp.lvBefore.L;
+  const nav = '<div class="rep-nav"><button class="btn" id="pd-prev" type="button"' + (i <= 0 ? ' disabled' : '') + '>◀ ' + (i > 0 ? esc(keyLabel(keys[i - 1], true)) : '') + '</button><span>' + esc(keyLabel(k)) + '</span><button class="btn" id="pd-next" type="button"' + (i >= keys.length - 1 ? ' disabled' : '') + '>' + (i < keys.length - 1 ? esc(keyLabel(keys[i + 1], true)) : '') + ' ▶</button></div>';
+  const done = r.quests.filter(q => q.done).length;
+  return nav +
+    '<section class="panel"><h2>The month</h2><div class="rep-big">' + money(r.c.left) + '</div><p class="hint">left after bills' + (r.pc ? ' (' + (r.c.left - r.pc.left >= 0 ? '+' : '−') + money(Math.abs(r.c.left - r.pc.left)) + ' on ' + esc(keyLabel(r.prev, true)) + ')' : '') + '</p></section>' +
+    '<section class="panel"><h2>Good news</h2>' + list('rep-good', r.good, 'Nothing to celebrate yet. Fill in more figures to see how you did.') + '</section>' +
+    '<section class="panel"><h2>Watch out</h2>' + list('rep-bad', r.bad, 'Nothing to worry about this month.') + '</section>' +
+    '<section class="panel"><h2>Quests <small>' + done + ' of ' + r.quests.length + '</small></h2><ul class="rep-list rep-quest">' + (r.quests.length ? r.quests.map(q => '<li class="' + (q.done ? 'done' : '') + '">' + esc(q.text) + '</li>').join('') : '<li style="opacity:.75">No quests for this month yet.</li>') + '</ul></section>' +
+    (spendRec().tx.length ? (() => { const per = periodOf(k), sp = spendIn(per.from, per.to); return '<section class="panel"><h2>Spending</h2><div class="rep-big">' + money(sp.total) + '</div><p class="hint">spent between paydays (' + esc(new Date(per.from + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })) + ' to ' + esc(new Date(Date.parse(per.to) - 86400000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })) + '), ' + (r.c.left - sp.total >= 0 ? money(r.c.left - sp.total) + ' of what was left after bills still unspent.' : money(sp.total - r.c.left) + ' more than was left after bills.') + '</p>' + (sp.top.length ? '<ul class="rep-list">' + sp.top.slice(0, 5).map(p => '<li>' + esc(titleCase(p[0])) + ': ' + money(p[1]) + '</li>').join('') + '</ul>' : '') + '</section>'; })() : '') +
+    '<section class="panel"><h2>XP and chest</h2><div class="rep-big">+' + r.xp.gained + ' XP</div><p class="hint">' + (lvUp ? 'LEVEL UP! Level ' + r.xp.lvBefore.L + ' to level ' + r.xp.lvAfter.L + ', ' + esc(r.xp.lvAfter.title) + '.' : 'Level ' + r.xp.lvAfter.L + ', ' + esc(r.xp.lvAfter.title) + '.') + '</p>' +
+    (xpLines(r.xp.rows) ? '<ul class="xp-bd" style="margin:0;padding:0;list-style:none;display:grid;gap:4px">' + xpLines(r.xp.rows) + '</ul>' : '') +
+    '<p class="hint">' + (r.chest ? 'Your savings grew by ' + money(r.chest.up) + ', so the chest opened.' + (r.chest.to > r.chest.from ? ' It is now a ' + CHEST_NAMES[r.chest.to].toLowerCase() + '.' : '') : 'No savings growth this month, so the chest stayed shut.') + '</p></section>' +
+    '<div class="btn-row"><button class="btn primary" id="pd-save-backup" type="button">Save backup file</button><button class="btn" id="pd-to-form" type="button">Back to the figures</button></div><p class="msg" id="pd-msg" role="status"></p>';
+}
+function pdRender() {
+  const form = pd.view === 'form';
+  $('pd-form').hidden = !form; $('pd-report').hidden = form;
+  $('pd-title').textContent = form ? 'Payday · ' + keyLabel(pd.k) : 'Report · ' + keyLabel(pd.k);
+  if (form) $('pd-form').innerHTML = pdFormHtml(pd.k); else $('pd-report').innerHTML = pdReportHtml(pd.k);
+}
+function pdOpen(k, view) {
+  pd.k = k; pd.view = view || 'form';
+  if (pd.view === 'form') setMonth(k);
+  $('pd-sheet').hidden = false; document.documentElement.classList.add('sheet-open');
+  pdRender(); $('pd-sheet').scrollTop = 0; $('pd-close').focus();
+}
+function pdClose() {
+  $('pd-sheet').hidden = true; document.documentElement.classList.remove('sheet-open');
+  syncMonthInputs(); renderStepper(); renderBills(); update(); renderPaydayNudge(); renderBackupUi();
+}
+function pdDone() {
+  ui.sel = pd.k; touch();   // saves the month even if nothing changed
+  const r = paydayRec(); if (!r.done || r.done < pd.k) r.done = pd.k; r.snooze = 0; setPaydayRec(r);
+  save(); update(); pd.view = 'report'; pdRender(); $('pd-sheet').scrollTop = 0;
+}
+function pdRefreshChips() {
+  document.querySelectorAll('#pd-form .pd-row').forEach(row => {
+    const slot = row.querySelector('.pd-slot'); if (slot) slot.innerHTML = pdChipFor(row.getAttribute('data-kind'), row.getAttribute('data-id'), pd.k);
+  });
+}
+$('pd-form').addEventListener('input', e => {   // the same changes the normal screens make, one figure at a time
+  const t = e.target, kind = t.getAttribute('data-k'); if (!kind) return;
+  const id = t.getAttribute('data-id'); ui.sel = pd.k;
+  const m = touch();
+  if (kind === 'wage') m.wage = t.value;
+  else if (kind === 'bill') { const b = m.bills.find(x => x.id === id); if (b) b.amount = t.value; }
+  else if (kind === 'cardbal') { const a = m.cards.find(x => x.id === id); if (a) a.balance = t.value; }
+  else if (kind === 'cardpay') {
+    const a = m.cards.find(x => x.id === id); if (!a) return;
+    const old = payBill(m, a);
+    if (old && old.card !== '*') m.bills = m.bills.filter(x => x !== old);
+    a.pay = t.value;
+    if (m.cards.some(hasPay)) syncLump(m); else { const lb = m.bills.find(b => b.card === '*'); if (lb) lb.amount = '0'; }
+  } else if (kind === 'sav') { const a = m.savings.find(x => x.id === id); if (a) a.balance = t.value; }
+  save(); update(); pdRefreshChips();
+});
+$('pd-sheet').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const id = b.id, keys = Object.keys(state.months).sort();
+  if (id === 'pd-close') pdClose();
+  else if (id === 'pd-done') pdDone();
+  else if (id === 'pd-to-form') { pd.view = 'form'; setMonth(pd.k); pdRender(); $('pd-sheet').scrollTop = 0; }
+  else if (id === 'pd-prev') { const i = keys.indexOf(pd.k); if (i > 0) { pd.k = keys[i - 1]; pdRender(); } }
+  else if (id === 'pd-next') { const i = keys.indexOf(pd.k); if (i >= 0 && i < keys.length - 1) { pd.k = keys[i + 1]; pdRender(); } }
+  else if (id === 'pd-save-backup') { saveBackupFile(); const mm = $('pd-msg'); if (mm) mm.textContent = $('backup-msg').textContent; }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('pd-sheet').hidden) pdClose(); });
+$('payday-start').addEventListener('click', () => pdOpen(paydayMonth(), 'form'));
+$('payday-later').addEventListener('click', () => { const r = paydayRec(); r.snooze = Date.now() + 86400000; setPaydayRec(r); renderPaydayNudge(); });
+$('open-payday').addEventListener('click', () => pdOpen(paydayMonth(), 'form'));
+$('open-report').addEventListener('click', () => { const keys = Object.keys(state.months).sort(); pdOpen(keys.length ? keys[keys.length - 1] : paydayMonth(), 'report'); });
+
+/* ---------- bank spending: a CSV statement read on this phone (kept in its own small setting, never in the main save) ---------- */
+const SKEY = 'left-after-bills-spend';
+const TX_TYPES = { DEB: ['Card payments', true], FPO: ['Payments out', true], CPT: ['Cash machine', true], CHG: ['Charges', true], FEE: ['Fees', true], PAY: ['Payments', true],
+  DD: ['Direct debits (already your bills)', false], SO: ['Standing orders (already your bills)', false], TFR: ['Transfers between accounts', false], BP: ['Bill payments', false] };
+function spendRec() { try { const r = JSON.parse(localStorage.getItem(SKEY) || 'null') || {}; r.tx = r.tx || []; r.types = r.types || {}; r.ignore = r.ignore || []; return r; } catch (e) { return { tx: [], types: {}, ignore: [] }; } }
+function setSpendRec(r) { try { localStorage.setItem(SKEY, JSON.stringify(r)); return true; } catch (e) { return false; } }
+const isoOf = d => d.toISOString().slice(0, 10);
+function parseCsv(text) {   // handles quotes, commas inside quotes and Windows line endings
+  const rows = []; let row = [], f = '', q = false;
+  text = String(text).replace(/^﻿/, '');
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (q) { if (ch === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += ch; }
+    else if (ch === '"') q = true;
+    else if (ch === ',') { row.push(f); f = ''; }
+    else if (ch === '\n' || ch === '\r') { if (ch === '\r' && text[i + 1] === '\n') i++; row.push(f); rows.push(row); row = []; f = ''; }
+    else f += ch;
+  }
+  if (f !== '' || row.length) { row.push(f); rows.push(row); }
+  return rows.filter(r => r.some(c => String(c).trim() !== ''));
+}
+const MONTHS3 = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
+function parseBankDate(str) {   // UK style, day first
+  const s = String(str || '').trim(); let m, y, mo, d;
+  if ((m = /^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})$/.exec(s))) { d = +m[1]; mo = +m[2]; y = +m[3]; }
+  else if ((m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(s))) { y = +m[1]; mo = +m[2]; d = +m[3]; }
+  else if ((m = /^(\d{1,2})[\s\-]+([A-Za-z]{3})[A-Za-z]*[\s\-]+(\d{2,4})$/.exec(s))) { d = +m[1]; mo = MONTHS3[m[2].toLowerCase()]; y = +m[3]; }
+  else return null;
+  if (y < 100) y += 2000;
+  if (!mo || mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+  return y + '-' + pad(mo) + '-' + pad(d);
+}
+const parseMoneyCell = v => { const t = String(v || '').replace(/[£,\s]/g, ''); if (!t) return 0; const neg = /^\(.*\)$/.test(t) || t.startsWith('-'); const n = parseFloat(t.replace(/[()\-]/g, '')); return isNaN(n) ? 0 : (neg ? -n : n); };
+function importBank(text) {   // returns { added, read, from, to } or { error }
+  const rows = parseCsv(text);
+  const hi = rows.findIndex(r => r.some(c => /date/i.test(c)));
+  if (hi < 0) return { error: 'That file has no Date column. Download the CSV (spreadsheet) version of your transactions, not the PDF statement.' };
+  const H = rows[hi].map(h => String(h).trim().toLowerCase()), col = re => H.findIndex(h => re.test(h));
+  const iDate = col(/date/), iDesc = col(/desc|detail|payee|narrative|merchant|reference/), iType = col(/^type$|transaction type/);
+  const iOut = col(/debit|money out|paid out|withdraw/), iIn = col(/credit|money in|paid in|deposit/), iAmt = col(/amount/);
+  if (iDesc < 0 || (iOut < 0 && iAmt < 0)) return { error: 'I could not find the description and money-out columns in that file.' };
+  const fresh = [];
+  rows.slice(hi + 1).forEach(r => {
+    const d = parseBankDate(r[iDate]); if (!d) return;
+    let out = 0;
+    if (iOut >= 0 && iOut !== iIn) out = Math.abs(parseMoneyCell(r[iOut]));
+    else { const v = parseMoneyCell(r[iAmt]); out = v < 0 ? -v : 0; }
+    if (!(out > 0)) return;   // money in is not spending
+    fresh.push([d, Math.round(out * 100) / 100, iType >= 0 ? String(r[iType] || '').trim().toUpperCase() : '', String(r[iDesc] || '').trim().replace(/\s+/g, ' ')]);
+  });
+  if (!fresh.length) return { error: 'No money-out transactions found in that file.' };
+  const rec = spendRec(), sig = t => t.join('|'), have = {}, seen = {};
+  rec.tx.forEach(t => { have[sig(t)] = (have[sig(t)] || 0) + 1; });
+  let added = 0;
+  fresh.forEach(t => { const k = sig(t); seen[k] = (seen[k] || 0) + 1; if (seen[k] > (have[k] || 0)) { rec.tx.push(t); added++; } });   // the same file twice adds nothing; two identical coffees in one file both count
+  rec.tx.sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0);
+  const newest = rec.tx[rec.tx.length - 1][0], cut = isoOf(new Date(Date.parse(newest) - 400 * 86400000));
+  rec.tx = rec.tx.filter(t => t[0] >= cut);
+  rec.at = Date.now();
+  if (!setSpendRec(rec)) return { error: 'The phone would not let me save the transactions.' };
+  const ds = fresh.map(t => t[0]).sort();
+  return { added, read: fresh.length, from: ds[0], to: ds[ds.length - 1] };
+}
+const placeOf = desc => String(desc || '').toUpperCase().replace(/[*#]/g, ' ').replace(/\d{3,}/g, ' ').replace(/[\-_]+(\s|$)/g, ' ').replace(/\s+/g, ' ').trim() || 'UNKNOWN';
+function countsAsSpend(rec, t) {
+  const on = rec.types[t[2]] !== undefined ? rec.types[t[2]] : (TX_TYPES[t[2]] ? TX_TYPES[t[2]][1] : true);
+  return on && rec.ignore.indexOf(placeOf(t[3])) < 0;
+}
+function periodOf(k) {   // the pay period that month k's wage pays for: its last Friday up to (not including) the next one
+  const y = +k.slice(0, 4), mo = +k.slice(5, 7) - 1;
+  return { from: isoOf(lastFriday(y, mo)), to: isoOf(lastFriday(y, mo + 1)) };
+}
+function spendIn(from, to) {   // to is exclusive
+  const rec = spendRec(), list = rec.tx.filter(t => t[0] >= from && t[0] < to && countsAsSpend(rec, t));
+  const total = list.reduce((s2, t) => s2 + t[1], 0), byPlace = {};
+  list.forEach(t => { const p = placeOf(t[3]); byPlace[p] = (byPlace[p] || 0) + t[1]; });
+  const top = Object.keys(byPlace).map(p => [p, byPlace[p]]).sort((a, b) => b[1] - a[1]);
+  return { total: Math.round(total * 100) / 100, count: list.length, top, newest: rec.tx.length ? rec.tx[rec.tx.length - 1][0] : null };
+}
+const titleCase = p => p.toLowerCase().replace(/\b[a-z]/g, c => c.toUpperCase());
+function renderSpendCard() {
+  const card = $('spend-card'); if (!card) return;
+  const rec = spendRec(); card.hidden = !rec.tx.length; if (!rec.tx.length) return;
+  const k = paydayMonth(), per = periodOf(k), today = isoOf(new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())));
+  const sp = spendIn(per.from, per.to), left = compute(getMonth(k)).left, rest = left - sp.total;
+  const days = Math.max(1, Math.round((Date.parse(per.to) - Date.parse(today)) / 86400000));
+  const pct = left > 0 ? Math.min(100, sp.total / left * 100) : 100, over = rest < 0;
+  const fromLbl = new Date(per.from + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+  const stale = sp.newest && sp.newest < today ? '<p class="hint">Includes transactions up to ' + new Date(sp.newest + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + '. Import again to update.</p>' : '';
+  $('spend-h').textContent = 'Since payday (' + fromLbl + ')';
+  $('spend-body').innerHTML = '<div class="spend-big">' + money(sp.total) + ' spent</div>' +
+    '<div class="spend-bar' + (over ? ' over' : '') + '"><i style="width:' + pct.toFixed(1) + '%"></i></div>' +
+    '<p class="hint">' + (over ? '<b style="color:var(--bad,#ec7a63)">' + money(-rest) + ' over</b> what was left after bills (' + money(left) + ').' : money(rest) + ' left of ' + money(left) + ' after bills: about ' + money(rest / days) + ' a day for ' + days + (days === 1 ? ' day' : ' days') + '.') + '</p>' +
+    (sp.top.length ? '<p class="spend-top">Most spent at: ' + sp.top.slice(0, 3).map(p => esc(titleCase(p[0])) + ' ' + money(p[1])).join(' · ') + '</p>' : '') + stale;
+}
+function renderBankPanel() {
+  const st = $('bank-status'); if (!st) return;
+  const rec = spendRec();
+  $('bank-clear').hidden = !rec.tx.length;
+  if (!rec.tx.length) { st.textContent = 'Nothing imported yet.'; $('bank-types').innerHTML = ''; $('bank-places').innerHTML = ''; return; }
+  st.textContent = rec.tx.length + ' payments out, from ' + new Date(rec.tx[0][0] + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ' to ' + new Date(rec.tx[rec.tx.length - 1][0] + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + (rec.at ? '. Last import ' + ago(rec.at) + '.' : '.');
+  const types = {}; rec.tx.forEach(t => { types[t[2]] = (types[t[2]] || 0) + t[1]; });
+  $('bank-types').innerHTML = '<h3 class="bank-h3">Types of payment</h3>' + Object.keys(types).sort((a, b) => types[b] - types[a]).map(t => {
+    const on = rec.types[t] !== undefined ? rec.types[t] : (TX_TYPES[t] ? TX_TYPES[t][1] : true);
+    return '<div class="bank-row"><label><input type="checkbox" data-type="' + esc(t) + '"' + (on ? ' checked' : '') + '>' + esc((TX_TYPES[t] ? TX_TYPES[t][0] : 'Other') + (t ? ' (' + t + ')' : '')) + '</label><span class="amt">' + money(types[t]) + '</span></div>';
+  }).join('');
+  const per = periodOf(paydayMonth()), sp = spendIn(per.from, per.to);
+  $('bank-places').innerHTML = '<h3 class="bank-h3">Places since payday</h3>' + (sp.top.length ? sp.top.slice(0, 12).map(p => '<div class="bank-row"><span>' + esc(titleCase(p[0])) + '</span><span class="amt">' + money(p[1]) + '</span><button class="btn" type="button" data-ignore="' + esc(p[0]) + '">Ignore</button></div>').join('') : '<p class="hint">No spending since payday yet.</p>') +
+    (rec.ignore.length ? '<h3 class="bank-h3">Ignored places</h3>' + rec.ignore.map(p => '<div class="bank-row"><span>' + esc(titleCase(p)) + '</span><button class="btn" type="button" data-unignore="' + esc(p) + '">Count again</button></div>').join('') : '') +
+    '<p class="hint">Ignore a place when it is not really spending, such as moving money to your own savings or paying off a card.</p>';
+}
+function bankSay(t) { $('bank-msg').textContent = t; }
+$('bank-import').addEventListener('click', () => $('bank-file').click());
+$('bank-file').addEventListener('change', async e => {
+  const f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return;
+  if (/\.pdf$/i.test(f.name)) { bankSay('That is a PDF statement. Download the CSV (spreadsheet) version of your transactions instead.'); return; }
+  try {
+    const r = importBank(await f.text());
+    if (r.error) bankSay(r.error);
+    else bankSay('Read ' + r.read + (r.read === 1 ? ' payment' : ' payments') + ' out (' + new Date(r.from + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ' to ' + new Date(r.to + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + '). ' + (r.added === r.read ? 'All new.' : r.added ? r.added + ' new, the rest were already imported.' : 'All of them were already imported.'));
+  } catch (er) { bankSay('Could not read that file.'); }
+  renderBankPanel(); renderSpendCard();
+});
+let bankClearArm = 0;
+$('bank-clear').addEventListener('click', () => {
+  const b = $('bank-clear');
+  if (!bankClearArm) { bankClearArm = setTimeout(() => { bankClearArm = 0; b.textContent = 'Clear imported'; }, 4000); b.textContent = 'Tap again to clear'; return; }
+  clearTimeout(bankClearArm); bankClearArm = 0; b.textContent = 'Clear imported';
+  const r = spendRec(); r.tx = []; r.at = 0; setSpendRec(r); bankSay('Imported transactions cleared. Your budget figures were not touched.');
+  renderBankPanel(); renderSpendCard();
+});
+$('bank-types').addEventListener('change', e => {
+  const t = e.target.getAttribute('data-type'); if (t == null) return;
+  const r = spendRec(); r.types[t] = e.target.checked; setSpendRec(r); renderBankPanel(); renderSpendCard();
+});
+$('bank-places').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const r = spendRec(), ig = b.getAttribute('data-ignore'), un = b.getAttribute('data-unignore');
+  if (ig && r.ignore.indexOf(ig) < 0) r.ignore.push(ig);
+  if (un) r.ignore = r.ignore.filter(p => p !== un);
+  setSpendRec(r); renderBankPanel(); renderSpendCard();
 });
 
 /* ---------- practice data: a made-up year, two taps to load ---------- */
@@ -2772,6 +3212,10 @@ $('load-demo').addEventListener('click', () => {
 /* ---------- start ---------- */
 save();
 renderPayday();
+renderBackupUi();
+renderPaydayNudge();
+renderSpendCard();
+renderBankPanel();
 syncMonthInputs();
 renderStepper();
 renderCatEditor();
