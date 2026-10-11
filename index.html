@@ -3118,11 +3118,11 @@ function addTransactions(fresh) {   // [date, amount out, type, description] row
   return { added, read: fresh.length, from: ds[0], to: ds[ds.length - 1] };
 }
 /* a PDF statement: pdf.js (Mozilla, Apache 2.0) reads the text on this phone; the table is rebuilt from its column headings */
-function pdfHeader(items) {
+function pdfHeader(items, partial) {
   const cols = {};
   items.forEach((it, i) => {
-    let t = it.s.toLowerCase().replace(/\s+/g, ''), end = it.x + it.w; const nx = items[i + 1];   // spaces ignored: some PDFs spell headings out as "D a t e"
-    if (/^(money|paid)$/.test(t) && nx) { t += nx.s.toLowerCase().replace(/\s+/g, ''); end = nx.x + nx.w; }
+    let t = it.s.toLowerCase().replace(/[\s.]+/g, ''), end = it.x + it.w; const nx = items[i + 1];   // spaces and stray full stops ignored: "D a t e", "Date."
+    if (/^(money|paid)$/.test(t) && nx) { t += nx.s.toLowerCase().replace(/[\s.]+/g, ''); end = nx.x + nx.w; }
     const mid = (it.x + end) / 2;   // a column is found by the centre of its heading
     if (/^date$/.test(t) && cols.date == null) cols.date = mid;
     else if (/^desc/.test(t)) cols.desc = mid;
@@ -3131,6 +3131,7 @@ function pdfHeader(items) {
     else if (/^(money|paid)out|^debit/.test(t)) cols.out = mid;
     else if (/^balance/.test(t)) cols.bal = mid;
   });
+  if (partial) return Object.keys(cols).length ? cols : null;
   return cols.date != null && cols.desc != null && cols.out != null ? cols : null;
 }
 function colFor(cols, it) {   // the column whose heading centre is nearest the centre of this text (works for left, centred and right-aligned tables)
@@ -3139,14 +3140,14 @@ function colFor(cols, it) {   // the column whose heading centre is nearest the 
   return best;
 }
 const unspace = t => { const parts = String(t || '').trim().split(/\s+/); return parts.length > 2 && parts.filter(x => x.length === 1).length / parts.length >= 0.7 ? parts.join('') : String(t || '').trim(); };   // "C O R N E R" -> "CORNER"
-const maskText = t => String(t || '').split(/(\s+)/).map(w => /^(DEB|TFR|FPI|FPO|DD|SO|CPT|BGC|BP|CHG|FEE|PAY|COR|INT|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/i.test(w) ? w : w.replace(/[0-9]/g, '9').replace(/[A-Za-z]/g, 'x')).join('').slice(0, 40);
+const maskText = t => String(t || '').split(/(\s+)/).map(w => /^(Money|In|Out|Date|Description|Type|Balance|DEB|TFR|FPI|FPO|DD|SO|CPT|BGC|BP|CHG|FEE|PAY|COR|INT|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/i.test(w) ? w : w.replace(/[0-9]/g, '9').replace(/[A-Za-z]/g, 'x')).join('').slice(0, 40);
 async function pdfRows(buf) {
   let pdfjs;
   try { pdfjs = await import('./pdf.min.mjs'); } catch (e) { return { error: 'PDF reading only works in the installed app. Here, import the CSV version instead.' }; }
   pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdf.worker.min.mjs', location.href).href;
   let doc;
   try { doc = await pdfjs.getDocument({ data: buf }).promise; } catch (e) { return { error: 'That PDF could not be opened.' }; }
-  const fresh = [], diag = []; let headerSeen = false, diagHead = '';
+  const fresh = [], diag = []; let headerSeen = false, diagHead = '', runBal = null;
   for (let p = 1; p <= doc.numPages; p++) {
     const tc = await (await doc.getPage(p)).getTextContent();
     const items = tc.items.filter(it => it.str && it.str.trim()).map(it => ({ s: it.str.trim(), x: it.transform[4], y: it.transform[5], w: it.width || 0, h: Math.abs(it.transform[3]) || 8 }));
@@ -3154,25 +3155,44 @@ async function pdfRows(buf) {
     const lines = [];
     items.forEach(it => { const ln = lines.find(l => Math.abs(l.y - it.y) < 3); if (ln) ln.items.push(it); else lines.push({ y: it.y, items: [it] }); });
     let cols = null;
-    const rows = [];   // in page order: dated rows, description-only lines (a wrapped description), and anything else
+    const rows = [], skip = new Set();   // rows in page order: dated rows, description-only lines (a wrapped description), and anything else
     lines.forEach(l => {
       l.items.sort((a, b) => a.x - b.x);
       const merged = [];   // some PDFs store text in fragments, even single letters: glue touching pieces back into words
       l.items.forEach(it => { const p = merged[merged.length - 1]; if (p && it.x - (p.x + p.w) <= it.h * 0.2) { p.s += it.s; p.w = it.x + it.w - p.x; } else merged.push(Object.assign({}, it)); });
       l.items = merged;
-      const h = pdfHeader(l.items); if (h) { cols = h; headerSeen = true; rows.push({ k: 'other' }); if (!diagHead) diagHead = Object.keys(h).map(k => k + '@' + Math.round(h[k])).join(' ') + ' / first row x: ' + ((lines[lines.indexOf(l) + 1] || { items: [] }).items.map(it => Math.round(it.x)).join(',')); return; }
+    });
+    lines.forEach((l, li) => {
+      if (skip.has(li)) { rows.push({ k: 'other' }); return; }
+      let h = pdfHeader(l.items, true);
+      if (h && h.date != null && h.desc != null) {   // a heading row: Date and Description, plus any headings wrapped onto the line above or below ("Money In" / "(£)")
+        const hh = (l.items[0] && l.items[0].h) || 8, used = [];
+        for (let j = Math.max(0, li - 3); j <= Math.min(lines.length - 1, li + 3); j++) {
+          if (j === li || Math.abs(lines[j].y - l.y) > hh * 2.5) continue;
+          const ex = pdfHeader(lines[j].items, true);
+          if (ex && ex.date == null) { Object.keys(ex).forEach(k => { if (h[k] == null) h[k] = ex[k]; }); used.push(j); }
+        }
+        if (h.out == null) h = null; else used.forEach(j => skip.add(j));
+      } else h = null;
+      if (h) {
+        cols = h; headerSeen = true; rows.push({ k: 'other' });
+        if (!diagHead) diagHead = Object.keys(h).map(k => k + '@' + Math.round(h[k])).join(' ');
+        return;
+      }
       if (!cols) return;
       const cell = {}, endX = {};
       l.items.forEach(it => {
         const c = colFor(cols, it); if (!c) return;
         const gap = endX[c] == null ? 0 : it.x - endX[c];
-        cell[c] = cell[c] == null ? it.s : cell[c] + (gap > it.h * 0.2 ? ' ' : '') + it.s;   // touching pieces are one word
+        const piece = it.s.replace(/\.+$/, '');   // some statements end every cell with a hidden full stop (for screen readers)
+        if (!piece) return;
+        cell[c] = cell[c] == null ? piece : cell[c] + (gap > it.h * 0.2 ? ' ' : '') + piece;   // touching pieces are one word
         endX[c] = it.x + it.w;
       });
       if (diag.length < 6) diag.push(Object.keys(cell).map(k => k + ':' + maskText(cell[k])).join(' | '));
       const d = parseBankDate(cell.date) || parseBankDate(String(cell.date || '').replace(/\s+/g, ''));
       if (d) rows.push({ k: 'tx', y: l.y, d, cell, desc: [{ y: l.y, t: cell.desc || '' }] });
-      else if (cell.desc && Object.keys(cell).length === 1) rows.push({ k: 'more', y: l.y, h: (l.items[0] && l.items[0].h) || 8, t: cell.desc });
+      else if (cell.desc && /[A-Za-z0-9]/.test(cell.desc) && Object.keys(cell).length === 1) rows.push({ k: 'more', y: l.y, h: (l.items[0] && l.items[0].h) || 8, t: cell.desc });
       else rows.push({ k: 'other' });
     });
     rows.forEach((r, i) => {   // a wrapped description line joins the nearest dated row (banks align these at the top or the middle of the row)
@@ -3184,9 +3204,12 @@ async function pdfRows(buf) {
     });
     rows.forEach(r => {
       if (r.k !== 'tx') return;
-      const out = Math.abs(parseMoneyCell(r.cell.out)); if (!(out > 0)) return;   // money in is not spending
+      const out = Math.abs(parseMoneyCell(r.cell.out)), bal = r.cell.bal ? parseMoneyCell(r.cell.bal) : null, prev = runBal;
+      if (bal != null && !isNaN(bal) && String(r.cell.bal).trim()) runBal = bal;
+      if (!(out > 0)) return;   // money in is not spending
+      if (prev != null && bal != null && Math.abs((bal - prev) - out) < 0.005 && Math.abs((prev - bal) - out) >= 0.005) return;   // the balance went up by this amount: it was money in
       const desc = r.desc.sort((a, b) => b.y - a.y).map(x => unspace(x.t)).join(' ').replace(/\s+/g, ' ').trim();
-      fresh.push([r.d, Math.round(out * 100) / 100, String(r.cell.type || '').replace(/\s+/g, '').toUpperCase(), desc]);
+      fresh.push([r.d, Math.round(out * 100) / 100, String(r.cell.type || '').replace(/[^A-Za-z]/g, '').toUpperCase(), desc]);
     });
   }
   const details = ' Details, with your information hidden: ' + (diagHead || 'no table heading') + ' // ' + diag.join(' // ');
