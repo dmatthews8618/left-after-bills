@@ -187,6 +187,21 @@ html.sheet-open { overflow: hidden; }
 .spend-bar i { display: block; height: 100%; background: var(--c3); }
 .spend-bar.over i { background: var(--bad, #ec7a63); }
 .spend-top { font-size: 0.8rem; color: var(--ink-3); font-weight: 600; margin-top: 4px; }
+.spend-groups { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.spend-groups .sg { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 10px; background: rgba(0, 0, 0, 0.22); font-size: 0.78rem; font-weight: 600; }
+.spend-groups .cat-dot, .sp-gn .cat-dot { width: 8px; height: 8px; margin: 0; }
+#pd-spend { display: grid; gap: 14px; }
+.sp-group { border-bottom: 1px solid var(--line); }
+.sp-group > summary { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 8px 0; cursor: pointer; list-style: none; }
+.sp-group > summary::-webkit-details-marker { display: none; }
+.sp-gn { display: flex; align-items: center; gap: 6px; font-weight: 700; }
+.sp-bar { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: rgba(0, 0, 0, 0.35); overflow: hidden; }
+.sp-bar i { display: block; height: 100%; }
+.sp-group small { grid-column: 1 / -1; font-size: 0.75rem; color: var(--ink-3); }
+.sp-place { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 6px 0 6px 10px; border-top: 1px dashed var(--line); }
+.sp-pn { font-weight: 600; font-size: 0.85rem; overflow-wrap: anywhere; }
+.sp-pn small { display: block; font-size: 0.72rem; color: var(--ink-3); font-weight: 600; }
+.sp-move { font: inherit; font-size: 0.72rem; max-width: 9.5rem; padding: 4px; border-radius: 6px; background: var(--field); color: var(--ink); border: 1px solid var(--line); }
 .bank-set summary { cursor: pointer; font-weight: 700; padding: 6px 0; }
 .bank-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 0.85rem; font-weight: 600; }
 .bank-row label { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
@@ -415,7 +430,7 @@ details[open] > summary .chev { transform: rotate(180deg); }
   --sh-in-sm: inset 0 0 0 2px var(--edge-soft), inset 2px 2px 0 rgba(0, 0, 0, 0.08);
   --sh-btn: 0 0 0 3px var(--edge), 4px 4px 0 3px var(--edge-sh);
   --display: "Press Start 2P", ui-monospace, Menlo, monospace;
-  --font: "Pixelify Sans", ui-monospace, Menlo, Consolas, monospace;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;   /* plain, readable text; pixel fonts stay for headings and numbers */
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -454,7 +469,27 @@ body { background-image: conic-gradient(var(--grid) 25%, transparent 0 50%, var(
 .hero-split .mini dd { font-size: 0.9rem; }
 .t-val { font-size: 1.05rem; line-height: 1.5; letter-spacing: 0; }
 .stepper .mlabel { font-size: 0.68rem; line-height: 1.5; }
-.stepper .mlabel .mper { display: block; font-size: 0.78em; opacity: 0.85; font-weight: 600; letter-spacing: 0; }
+.stepper .mlabel .mper { display: block; font-family: var(--font); font-size: 0.95em; opacity: 0.9; font-weight: 700; letter-spacing: 0; margin-top: 2px; }
+.pv-off { display: none !important; }
+/* a bill row: monster | name across the top; the bar and note underneath, with the amount box beside them */
+.bill summary { display: grid; grid-template-columns: 46px minmax(0, 1fr) 6rem 14px; grid-template-areas: "foe name name chev" "foe bar amt chev" "foe sub sub chev"; column-gap: 8px; row-gap: 3px; align-items: center; }
+.bill summary .foe { grid-area: foe; width: 46px; height: 40px; }
+.bill summary .bs-main { display: contents; }
+.bill summary .bs-name { grid-area: name; }
+.bill summary .foe-hp { grid-area: bar; }
+.bill summary .bs-sub { grid-area: sub; }
+.bill summary .chev { grid-area: chev; }
+.bs-amt-in { grid-area: amt; width: 6rem; }
+.bs-amt-in input { width: 100%; }
+.bill-edit { grid-template-areas: "name del" "cat cat"; }
+@media (min-width: 420px) { .bill-edit { grid-template-areas: "name name del" "cat cat cat"; } }
+.quest-done { justify-content: center; }
+.quest-done .btn { width: 100%; }
+.cfold > h2 { cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.cfold .fchev { display: inline-flex; flex: none; transition: transform 0.15s; }
+.cfold:not(.open) .fchev { transform: rotate(-90deg); }
+.cfold:not(.open) > :not(h2) { display: none !important; }
+:root.still .cfold .fchev { transition: none; }
 .fold > summary { font-size: 0.7rem; line-height: 1.6; }
 .hrow .hl b, .hrow .hr b { font-size: 0.68rem; line-height: 1.6; }
 .readout h3 { font-size: 0.7rem; line-height: 1.6; }
@@ -620,7 +655,7 @@ details[open] .trophy:nth-child(8) { animation-delay: 350ms; } details[open] .tr
   --c1: #5aa0f0; --c2: #ff7a4a; --c3: #4ee0a0; --c4: #ffc440; --c5: #ff8ec0; --c6: #9ae070; --c7: #b090f0; --neutral: #7a7466;
   --edge: #000; --edge-sh: rgba(0, 0, 0, 0.6); --edge-soft: rgba(0, 0, 0, 0.6); --grid: transparent; --sh-dark: rgba(0, 0, 0, 0.6);
   --display: "Press Start 2P", ui-monospace, Menlo, monospace;
-  --font: "Pixelify Sans", ui-monospace, Menlo, Consolas, monospace;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;   /* plain, readable text; pixel fonts stay for headings and numbers */
   --well: rgba(0, 0, 0, 0.36); --well-edge: rgba(0, 0, 0, 0.62);
   --gold: #f0c030; --frame: #3b2a1c; --plank-ink: #1b120a;
 }
@@ -913,17 +948,6 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
         <div class="when" id="payday-when"></div>
       </div>
     </header>
-    <div class="skin-row"><button type="button" class="motion-btn" id="motion-btn" aria-pressed="true">Animations on</button><div class="skin" role="group" aria-label="Board style"><button type="button" data-skin="wood" aria-pressed="true">Wood</button><button type="button" data-skin="stone" aria-pressed="false">Stone</button></div></div>
-    <figure class="vista" aria-hidden="true"><canvas class="scene" data-scene="camp"></canvas></figure>
-    <button class="narrator" id="ov-narr" type="button" aria-live="polite" hidden><span class="nt"></span><span class="nn"></span></button>
-    <div class="notice payday-nudge" id="payday-nudge" role="status" hidden><span id="payday-nudge-t"></span><span class="btn-row"><button class="btn primary" id="payday-start" type="button">Fill it in</button><button class="btn" id="payday-later" type="button">Not now</button></span></div>
-    <section class="panel spend-card" id="spend-card" aria-labelledby="spend-h" hidden><h2 id="spend-h">Since payday</h2><div id="spend-body"></div></section>
-    <div class="notice backup-nudge" id="backup-nudge" role="status" hidden><span id="backup-nudge-t"></span><span class="btn-row"><button class="btn primary" id="nudge-save" type="button">Save backup</button><button class="btn" id="nudge-later" type="button">Later</button></span></div>
-    <div class="notice" id="example-notice" hidden>
-      <span>These are example figures. Clear them to start with your own.</span>
-      <button class="btn" id="clear-examples" type="button">Clear examples</button>
-    </div>
-    <section class="char" id="ov-char" aria-label="Your character"></section>
     <section class="hero" aria-labelledby="ov-month">
       <p class="label" id="ov-month"></p>
       <p class="big" id="ov-left">£0</p>
@@ -935,16 +959,31 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
       </dl>
       <p class="hint">Per week and per day are what is left, split across the days until payday.</p>
     </section>
+    <section class="panel spend-card" id="spend-card" aria-labelledby="spend-h" hidden><h2 id="spend-h">Since payday</h2><div id="spend-body"></div></section>
     <div id="ov-balances"></div>
-    <section class="panel" id="ov-boss-panel" aria-labelledby="ov-boss-h" hidden>
-      <h2 id="ov-boss-h">Boss fights</h2>
-      <div id="ov-bosses"></div>
-    </section>
+    <figure class="vista" aria-hidden="true"><canvas class="scene" data-scene="camp"></canvas></figure>
+    <button class="narrator" id="ov-narr" type="button" aria-live="polite" hidden><span class="nt"></span><span class="nn"></span></button>
+    <div class="notice payday-nudge" id="payday-nudge" role="status" hidden><span id="payday-nudge-t"></span><span class="btn-row"><button class="btn primary" id="payday-start" type="button">Fill it in</button><button class="btn" id="payday-later" type="button">Not now</button></span></div>
+    <div class="notice backup-nudge" id="backup-nudge" role="status" hidden><span id="backup-nudge-t"></span><span class="btn-row"><button class="btn primary" id="nudge-save" type="button">Save backup</button><button class="btn" id="nudge-later" type="button">Later</button></span></div>
+    <div class="notice" id="example-notice" hidden>
+      <span>These are example figures. Clear them to start with your own.</span>
+      <button class="btn" id="clear-examples" type="button">Clear examples</button>
+    </div>
+    <section class="char" id="ov-char" aria-label="Your character"></section>
     <section class="panel" aria-labelledby="ov-quest-h">
       <h2 id="ov-quest-h">This month’s quests</h2>
       <div id="ov-quests"></div>
     </section>
-    <section class="panel" aria-labelledby="ov-glance-h">
+    <details class="panel fold" id="ov-boss-panel" hidden>
+      <summary><span>Boss fights</span><svg class="chev" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+      <div class="fold-body"><div id="ov-bosses"></div></div>
+    </details>
+    <details class="panel fold" id="ov-trophy-fold">
+      <summary><span>Trophies <span class="sum-chip" id="ov-trophy-count"></span></span><svg class="chev" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
+      <div class="fold-body"><div class="trophies" id="ov-trophies"></div></div>
+    </details>
+    <div class="btn-row"><button class="btn primary" id="ov-edit" type="button">Fill in or edit this month</button></div>
+    <section class="panel pv-off" aria-labelledby="ov-glance-h">
       <h2 id="ov-glance-h">Battle report</h2>
       <dl class="stats3">
         <div class="mini"><dt>Wages</dt><dd id="ov-income">£0</dd></div>
@@ -953,19 +992,14 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
       </dl>
       <div id="ov-split"></div>
     </section>
-    <section class="panel" aria-labelledby="ov-top-h">
+    <section class="panel pv-off" aria-labelledby="ov-top-h">
       <h2 id="ov-top-h">Top 3 foes (bills)</h2>
       <div class="bars" id="ov-top"></div>
     </section>
-    <section class="panel" aria-labelledby="ov-trend-h">
+    <section class="panel pv-off" aria-labelledby="ov-trend-h">
       <h2 id="ov-trend-h">Left after bills, month by month</h2>
       <div id="ov-trend"></div>
     </section>
-    <details class="panel fold" id="ov-trophy-fold">
-      <summary><span>Trophies <span class="sum-chip" id="ov-trophy-count"></span></span><svg class="chev" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
-      <div class="fold-body"><div class="trophies" id="ov-trophies"></div></div>
-    </details>
-    <div class="btn-row"><button class="btn primary" id="ov-edit" type="button">Edit this month</button></div>
   </section>
 
   <!-- MONTHLY -->
@@ -1013,6 +1047,13 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
       <p class="hint" id="cards-msg" role="status"></p>
       <p class="warn-note" id="cards-dup" hidden></p>
     </section>
+    <section class="panel" aria-labelledby="sv-acc-h">
+      <h2 id="sv-acc-h">Savings accounts and pots</h2>
+      <p class="hint">Enter what each one holds now. The change since last month shows under each. A rise opens the chest in the Vault.</p>
+      <ul class="accts" id="sav-list"></ul>
+      <div class="btn-row"><button class="btn primary" id="add-sav" type="button">Add savings</button></div>
+    </section>
+    <div class="btn-row quest-done"><button class="btn primary" id="quest-done" type="button">Done, show my report</button></div>
     <details class="panel fold">
       <summary><span>Categories and month settings</span><svg class="chev" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>
       <div class="fold-body">
@@ -1042,12 +1083,7 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
       <p id="sv-change"></p>
       <p class="vault-tier" id="sv-tier"></p>
     </section>
-    <section class="panel" aria-labelledby="sv-acc-h">
-      <h2 id="sv-acc-h">Savings accounts and pots</h2>
-      <p class="hint">Enter what each one holds at the end of the month. The change since last month shows under each.</p>
-      <ul class="accts" id="sav-list"></ul>
-      <div class="btn-row"><button class="btn primary" id="add-sav" type="button">Add savings</button></div>
-    </section>
+    <div class="notice"><span>Update your savings balances on the Quest screen, with the rest of the month.</span><button class="btn" id="go-sav" type="button">Go there</button></div>
     <section class="panel" aria-labelledby="sv-trend-h">
       <h2 id="sv-trend-h">Savings over time</h2>
       <div id="sv-chart"></div>
@@ -1106,35 +1142,18 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
   <section class="screen" id="tab-history" aria-label="History" hidden>
     <header class="top"><h1>Chronicle</h1></header>
     <figure class="vista journey" aria-hidden="true"><div class="jscroll"><canvas class="scene" data-scene="chron"></canvas></div></figure>
-    <section class="panel" aria-labelledby="hi-sum-h">
-      <h2 id="hi-sum-h">All your months</h2>
-      <dl class="stats" id="hi-summary"></dl>
-    </section>
-    <section class="panel" aria-labelledby="hi-line-h">
-      <h2 id="hi-line-h">Wages, bills and what is left</h2>
-      <div id="hi-readout"></div>
-      <div id="hi-line"></div>
-    </section>
-    <section class="panel" aria-labelledby="hi-stack-h">
-      <h2 id="hi-stack-h">Bills by category over time</h2>
-      <div id="hi-stack"></div>
-    </section>
-    <section class="panel" aria-labelledby="hi-list-h">
-      <h2 id="hi-list-h">Month by month</h2>
-      <div class="hlist" id="hi-list"></div>
+    <section class="panel" aria-labelledby="pay-h">
+      <h2 id="pay-h">Month reports</h2>
+      <p class="hint">After each payday, fill the month in on the Quest screen and press Done. Each month has a report: what you beat, what grew and what you earned.</p>
+      <div class="btn-row"><button class="btn primary" id="open-report" type="button">Open month reports</button><button class="btn" id="open-payday" type="button">Fill in this month</button></div>
     </section>
     <section class="panel" aria-labelledby="bank-h">
       <h2 id="bank-h">Bank spending</h2>
       <p class="hint">Import a statement from Bank of Scotland: the PDF from the banking app, or a CSV from online banking. It is read on this phone only, and nothing is sent anywhere.</p>
       <p class="hint" id="bank-status"></p>
-      <div class="btn-row"><button class="btn primary" id="bank-import" type="button">Import bank file</button><button class="btn" id="bank-clear" type="button" hidden>Clear imported</button><input type="file" id="bank-file" accept=".csv,.pdf,text/csv,text/plain,application/pdf,application/vnd.ms-excel" hidden></div>
+      <div class="btn-row"><button class="btn primary" id="bank-import" type="button">Import bank file</button><button class="btn" id="bank-insights" type="button">See spending</button><button class="btn" id="bank-clear" type="button" hidden>Clear imported</button><input type="file" id="bank-file" accept=".csv,.pdf,text/csv,text/plain,application/pdf,application/vnd.ms-excel" hidden></div>
       <details class="bank-set"><summary>What counts as spending</summary><div id="bank-types"></div><div id="bank-places"></div></details>
       <p class="msg" id="bank-msg" role="status"></p>
-    </section>
-    <section class="panel" aria-labelledby="pay-h">
-      <h2 id="pay-h">Payday</h2>
-      <p class="hint">Fill in a month in one place, then see what happened: what you beat, what grew, and what you earned.</p>
-      <div class="btn-row"><button class="btn primary" id="open-payday" type="button">Payday routine</button><button class="btn" id="open-report" type="button">Month report</button></div>
     </section>
     <section class="panel backup" aria-labelledby="backup-h">
       <h2 id="backup-h">Backup</h2>
@@ -1159,6 +1178,27 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
       </div>
       <p class="msg" id="backup-msg" role="status"></p>
     </section>
+    <section class="panel" aria-labelledby="hi-sum-h">
+      <h2 id="hi-sum-h">All your months</h2>
+      <dl class="stats" id="hi-summary"></dl>
+    </section>
+    <section class="panel" aria-labelledby="hi-line-h">
+      <h2 id="hi-line-h">Wages, bills and what is left</h2>
+      <div id="hi-readout"></div>
+      <div id="hi-line"></div>
+    </section>
+    <section class="panel" aria-labelledby="hi-stack-h">
+      <h2 id="hi-stack-h">Bills by category over time</h2>
+      <div id="hi-stack"></div>
+    </section>
+    <section class="panel" aria-labelledby="hi-list-h">
+      <h2 id="hi-list-h">Month by month</h2>
+      <div class="hlist" id="hi-list"></div>
+    </section>
+    <section class="panel" aria-labelledby="look-h">
+      <h2 id="look-h">Look and motion</h2>
+      <div class="skin-row"><button type="button" class="motion-btn" id="motion-btn" aria-pressed="true">Animations on</button><div class="skin" role="group" aria-label="Board style"><button type="button" data-skin="wood" aria-pressed="true">Wood</button><button type="button" data-skin="stone" aria-pressed="false">Stone</button></div></div>
+    </section>
     <section class="panel credits" aria-labelledby="credits-h">
       <h2 id="credits-h">Credits</h2>
       <p class="hint">Pixel art used with thanks:</p>
@@ -1177,6 +1217,7 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
     <div class="sheet-top"><h2 id="pd-title"></h2><button class="btn" id="pd-close" type="button">Close</button></div>
     <div id="pd-form" hidden></div>
     <div id="pd-report" hidden></div>
+    <div id="pd-spend" hidden></div>
   </div>
 </div>
 
@@ -1774,6 +1815,41 @@ function monthReport(k) {   // what happened this month compared with last: good
   const chest = pc && c.saveTotal > pc.saveTotal + 0.005 ? { up: c.saveTotal - pc.saveTotal, from: saveTierOf(pc.saveTotal), to: saveTierOf(c.saveTotal) } : null;
   return { key: k, prev: pk, c, pc, good, bad, quests, xp: { gained, rows: g.xpBy[k] || {}, lvBefore: lb, lvAfter: la }, chest, started };
 }
+/* ---------- what the bank statement says: spending groups, most frequent places, biggest payments ---------- */
+const SPEND_GROUPS = [   // [id, name, colour, pattern]; first match wins, so the more specific ones come first
+  ['pub', 'Pubs and bars', 'var(--c2)', /\b(BAR|BARS|PUB|INN|ARMS|TAVERN|LOUNGE|BREWDOG|WETHERSPOON|BREWERY|SALOON|HOSTELRY|CLUBHOUSE)\b/],
+  ['food', 'Takeaways and eating out', 'var(--c5)', /(UBER\s*\*?\s*EATS|JUST\s*EAT|DELIVEROO|MCDONALD|GREGGS|KFC|BURGER|PIZZA|DOMINO|SUBWAY|NANDO|CAFE|COFFEE|COSTA|STARBUCKS|CHIPPY|KEBAB|RESTAURANT|TAKEAWAY|BAKERY)/],
+  ['groc', 'Food shopping', 'var(--c3)', /(TESCO|ASDA|SAINSBURY|LIDL|ALDI|MORRISON|CO-?OP|SPAR|ICELAND|WAITROSE|M&S|MARKS|CONVENIE|NISA|COSTCUTTER|SCOTMID|BAYNES|ONE STOP|FARMFOODS)/],
+  ['travel', 'Travel and fuel', 'var(--c1)', /(UBER(?!\s*\*?\s*EATS)|TRAINLINE|SCOTRAIL|FIRST BUS|FIRSTBUS|STAGECOACH|LNER|AVANTI|TAXI|ESSO|SHELL|\bBP\b|TEXACO|PARKING|RINGGO|TFL|SPT)/],
+  ['subs', 'Subscriptions and apps', 'var(--c7)', /(NETFLIX|SPOTIFY|DISNEY|PRIME VIDEO|AMAZON PRIME|APPLE\.COM|ITUNES|GOOGLE|OPENAI|CHATGPT|ANTHROPIC|CLAUDE|XBOX|PLAYSTATION|STEAM|NOW TV|PATREON|AUDIBLE)/],
+  ['shop', 'Shopping', 'var(--c4)', /(AMAZON|ARGOS|EBAY|PRIMARK|\bNEXT\b|BOOTS|SUPERDRUG|B&M|HOME BARGAINS|IKEA|CURRYS|JD SPORTS|SPORTS DIRECT|TK ?MAXX|POUNDLAND|SAVERS)/],
+  ['cash', 'Cash', 'var(--c6)', /(CASH|\bATM\b)/],
+  ['other', 'Everything else', 'var(--neutral)', null]
+];
+const groupName = id => (SPEND_GROUPS.find(g => g[0] === id) || SPEND_GROUPS[SPEND_GROUPS.length - 1])[1];
+const groupColour = id => (SPEND_GROUPS.find(g => g[0] === id) || SPEND_GROUPS[SPEND_GROUPS.length - 1])[2];
+function groupOf(rec, place, type) {   // your own choice first, then cash machines, then the name
+  if (rec.groups && rec.groups[place]) return rec.groups[place];
+  if (type === 'CPT') return 'cash';
+  const g = SPEND_GROUPS.find(x => x[3] && x[3].test(place));
+  return g ? g[0] : 'other';
+}
+function spendInsights(from, to) {   // to is exclusive
+  const rec = spendRec(), list = rec.tx.filter(t => t[0] >= from && t[0] < to && countsAsSpend(rec, t));
+  const groups = {}, places = {};
+  list.forEach(t => {
+    const p = placeOf(t[3]), g = groupOf(rec, p, t[2]);
+    const G = groups[g] || (groups[g] = { id: g, total: 0, n: 0, places: {} }); G.total += t[1]; G.n++; G.places[p] = (G.places[p] || 0) + t[1];
+    const P = places[p] || (places[p] = { p, g, total: 0, n: 0 }); P.total += t[1]; P.n++;
+  });
+  const total = list.reduce((a, t) => a + t[1], 0);
+  return {
+    total: Math.round(total * 100) / 100, count: list.length,
+    groups: Object.keys(groups).map(k => groups[k]).sort((a, b) => b.total - a.total),
+    frequent: Object.keys(places).map(k => places[k]).sort((a, b) => b.n - a.n || b.total - a.total),
+    biggest: list.slice().sort((a, b) => b[1] - a[1]).slice(0, 5)
+  };
+}
 // LOGIC-END
 
 /* ---------- storage ---------- */
@@ -1942,13 +2018,16 @@ function renderPayday() {
 }
 
 function renderOverview() {
-  const cur = curKey();
+  /* the pay you are living on now (the last payday that has come), split across the days until the next payday */
+  const cur = paydayMonth();
   const m = getMonth(cur);
   const c = compute(m);
-  $('ov-month').textContent = keyLabel(cur) + ' · left after bills';
+  const per = periodOf(cur), nw = new Date(), today = Date.UTC(nw.getFullYear(), nw.getMonth(), nw.getDate());
+  const daysLeft = Math.max(1, Math.round((Date.parse(per.to) - today) / 86400000));
+  $('ov-month').textContent = new Date(per.from + 'T12:00:00').toLocaleDateString('en-GB', { month: 'long' }) + ' pay · left after bills';
   setText($('ov-left'), money(c.left));
-  $('ov-week').textContent = money(c.left * 7 / Math.max(1, nextPayday(new Date()).days));
-  $('ov-day').textContent = money(c.left / Math.max(1, nextPayday(new Date()).days));
+  $('ov-week').textContent = money(c.left * 7 / daysLeft);
+  $('ov-day').textContent = money(c.left / daysLeft);
   const st = statusOf(c);
   $('ov-status').className = st.cls;
   $('ov-status').innerHTML = st.html;
@@ -2023,7 +2102,7 @@ function syncBillSummary(li, b) {
   const n = li.querySelector('.bs-name');
   n.textContent = b.name || 'New bill';
   n.classList.toggle('dim', !b.name);
-  li.querySelector('.bs-amt').textContent = money(num(b.amount));
+  const ba = li.querySelector('.bs-amt'); if (ba) ba.textContent = money(num(b.amount));
   li.querySelector('.cat-dot').style.background = catColor(b.cat);
   foeSync(li, b);
 }
@@ -2058,10 +2137,9 @@ function billRow(b, open) {
   li.setAttribute('data-id', b.id);
   const opts = state.cats.map(k => '<option value="' + k.id + '"' + (k.id === b.cat ? ' selected' : '') + '>' + esc(k.name || 'Untitled') + '</option>').join('');
   li.innerHTML =
-    '<details' + (open ? ' open' : '') + '><summary><canvas class="foe" width="104" height="88" aria-hidden="true"></canvas><span class="bs-main"><span class="bs-name"></span><span class="foe-hp" aria-hidden="true"><i></i></span><span class="bs-sub"><span class="cat-dot"></span><span class="sub-t"></span></span></span><span class="bs-amt"></span>' + CHEV + '</summary>' +
+    '<details' + (open ? ' open' : '') + '><summary><canvas class="foe" width="104" height="88" aria-hidden="true"></canvas><span class="bs-main"><span class="bs-name"></span><span class="foe-hp" aria-hidden="true"><i></i></span><span class="bs-sub"><span class="cat-dot"></span><span class="sub-t"></span></span></span><span class="bs-amt-in money"><span aria-hidden="true">£</span><input class="b-amt" id="ba-' + b.id + '" aria-label="' + esc(b.name || 'Bill') + ' amount per month" inputmode="decimal" placeholder="0" autocomplete="off"></span>' + CHEV + '</summary>' +
     '<div class="bill-edit">' +
     '<input class="field b-name" id="bn-' + b.id + '" aria-label="Bill name" placeholder="Bill name" maxlength="40" autocomplete="off">' +
-    '<div class="money"><span aria-hidden="true">£</span><input class="b-amt" id="ba-' + b.id + '" aria-label="Bill amount per month" inputmode="decimal" placeholder="0" autocomplete="off"></div>' +
     '<select class="field b-cat" id="bc-' + b.id + '" aria-label="Category">' + opts + '</select>' +
     '<button class="btn icon b-del" type="button" aria-label="Remove bill"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M4 4l10 10M14 4L4 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>' +
     '</div></details>';
@@ -2999,14 +3077,40 @@ function pdReportHtml(k) {
     (spendRec().tx.length ? (() => { const per = periodOf(k), sp = spendIn(per.from, per.to); const now = new Date(), today = isoOf(new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()))), short = x => new Date(x + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
       if (today < per.from) return '<section class="panel"><h2>Spending</h2><p class="hint">This pay period starts on payday, ' + esc(short(per.from)) + ', so nothing has been spent from it yet. Spending from your imported statement shows in the report for the pay period it falls in.</p></section>';
       const going = today < per.to;
-      return '<section class="panel"><h2>Spending</h2><div class="rep-big">' + money(sp.total) + '</div><p class="hint">spent ' + (going ? 'so far this pay period (' + esc(short(per.from)) + ' to today)' : 'between paydays (' + esc(short(per.from)) + ' to ' + esc(short(isoOf(new Date(Date.parse(per.to) - 86400000)))) + ')') + ', ' + (r.c.left - sp.total >= 0 ? money(r.c.left - sp.total) + ' of what was left after bills ' + (going ? 'still to spend.' : 'unspent.') : money(sp.total - r.c.left) + ' more than was left after bills.') + (sp.newest && sp.newest < per.to && going ? ' Imported up to ' + esc(short(sp.newest)) + '.' : '') + '</p>' + (sp.top.length ? '<ul class="rep-list">' + sp.top.slice(0, 5).map(p => '<li>' + esc(titleCase(p[0])) + ': ' + money(p[1]) + '</li>').join('') + '</ul>' : '') + '</section>'; })() : '') +
+      return '<section class="panel"><h2>Spending</h2><div class="rep-big">' + money(sp.total) + '</div><p class="hint">spent ' + (going ? 'so far this pay period (' + esc(short(per.from)) + ' to today)' : 'between paydays (' + esc(short(per.from)) + ' to ' + esc(short(isoOf(new Date(Date.parse(per.to) - 86400000)))) + ')') + ', ' + (r.c.left - sp.total >= 0 ? money(r.c.left - sp.total) + ' of what was left after bills ' + (going ? 'still to spend.' : 'unspent.') : money(sp.total - r.c.left) + ' more than was left after bills.') + (sp.newest && sp.newest < per.to && going ? ' Imported up to ' + esc(short(sp.newest)) + '.' : '') + '</p>' + (() => { const ins = spendInsights(per.from, per.to); return ins.groups.length ? '<ul class="rep-list">' + ins.groups.slice(0, 5).map(G => '<li>' + esc(groupName(G.id)) + ': ' + money(G.total) + ' (' + G.n + ')</li>').join('') + '</ul>' : ''; })() + '<div class="btn-row"><button class="btn" id="sp-open" type="button">See spending</button></div></section>'; })() : '') +
     '<section class="panel"><h2>XP and chest</h2><div class="rep-big">+' + r.xp.gained + ' XP</div><p class="hint">' + (lvUp ? 'LEVEL UP! Level ' + r.xp.lvBefore.L + ' to level ' + r.xp.lvAfter.L + ', ' + esc(r.xp.lvAfter.title) + '.' : 'Level ' + r.xp.lvAfter.L + ', ' + esc(r.xp.lvAfter.title) + '.') + '</p>' +
     (xpLines(r.xp.rows) ? '<ul class="xp-bd" style="margin:0;padding:0;list-style:none;display:grid;gap:4px">' + xpLines(r.xp.rows) + '</ul>' : '') +
     '<p class="hint">' + (r.chest ? 'Your savings grew by ' + money(r.chest.up) + ', so the chest opened.' + (r.chest.to > r.chest.from ? ' It is now a ' + CHEST_NAMES[r.chest.to].toLowerCase() + '.' : '') : 'No savings growth this month, so the chest stayed shut.') + '</p></section>' +
-    '<div class="btn-row"><button class="btn primary" id="pd-save-backup" type="button">Save backup file</button><button class="btn" id="pd-to-form" type="button">Back to the figures</button></div><p class="msg" id="pd-msg" role="status"></p>';
+    '<div class="btn-row"><button class="btn primary" id="pd-save-backup" type="button">Save backup file</button><button class="btn" id="pd-to-form" type="button">Edit these figures</button></div><p class="msg" id="pd-msg" role="status"></p>';
+}
+function pdSpendHtml(k) {
+  const rec = spendRec();
+  if (!rec.tx.length) return '<section class="panel"><h2>No statement yet</h2><p class="hint">Import a bank statement on the Chronicle screen (Bank spending) to see where your money goes.</p></section>';
+  const per = periodOf(k), nw = new Date(), today = isoOf(new Date(Date.UTC(nw.getFullYear(), nw.getMonth(), nw.getDate())));
+  const going = today < per.to, end = going ? today : isoOf(new Date(Date.parse(per.to) - 86400000));
+  const short = x => new Date(x + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  const payName = x => new Date(periodOf(x).from + 'T12:00:00').toLocaleDateString('en-GB', { month: 'short' }) + ' pay';
+  const oldest = rec.tx[0][0], prevK = stepKey(k, -1), nextK = stepKey(k, 1);
+  const canPrev = periodOf(prevK).to > oldest, canNext = nextK <= paydayMonth();
+  const ins = spendInsights(per.from, per.to), days = Math.max(1, Math.round((Date.parse(going ? today : per.to) - Date.parse(per.from)) / 86400000) + (going ? 1 : 0));
+  const nav = '<div class="rep-nav"><button class="btn" id="sp-prev" type="button"' + (canPrev ? '' : ' disabled') + '>◀ ' + (canPrev ? esc(payName(prevK)) : '') + '</button><span>' + esc(new Date(per.from + 'T12:00:00').toLocaleDateString('en-GB', { month: 'long' })) + ' pay</span><button class="btn" id="sp-next" type="button"' + (canNext ? '' : ' disabled') + '>' + (canNext ? esc(payName(nextK)) : '') + ' ▶</button></div>';
+  const head = '<p class="hint" style="color:#cdbf9a;margin:-6px 0 0">' + esc(short(per.from)) + ' to ' + esc(short(end)) + (going ? ' (so far)' : '') + '. Bills, transfers and money in are left out.</p>';
+  if (today < per.from) return nav + '<section class="panel"><h2>Not started</h2><p class="hint">This pay period starts on payday, ' + esc(short(per.from)) + '.</p></section>';
+  const opts = cur => SPEND_GROUPS.map(g => '<option value="' + g[0] + '"' + (g[0] === cur ? ' selected' : '') + '>' + esc(g[1]) + '</option>').join('');
+  const placeRow = (p, extra) => '<div class="sp-place"><div class="sp-pn">' + esc(titleCase(p.p)) + '<small>' + extra + '</small></div><select class="sp-move" data-place="' + esc(p.p) + '" aria-label="Group for ' + esc(titleCase(p.p)) + '">' + opts(p.g) + '</select></div>';
+  const max = ins.groups.length ? ins.groups[0].total : 1;
+  const groups = ins.groups.map(G => '<details class="sp-group"><summary><span class="sp-gn"><i class="cat-dot" style="background:' + groupColour(G.id) + '"></i>' + esc(groupName(G.id)) + '</span><b>' + money(G.total) + '</b><span class="sp-bar"><i style="width:' + (G.total / max * 100).toFixed(1) + '%;background:' + groupColour(G.id) + '"></i></span><small>' + G.n + (G.n === 1 ? ' payment' : ' payments') + ' · about ' + money(G.total / days * 7) + ' a week</small></summary>' +
+    Object.keys(G.places).map(p => ({ p, g: G.id, total: G.places[p], n: ins.frequent.find(x => x.p === p).n })).sort((a, b) => b.total - a.total).map(p => placeRow(p, p.n + (p.n === 1 ? ' time' : ' times') + ' · ' + money(p.total))).join('') + '</details>').join('');
+  return nav + head +
+    '<section class="panel"><h2>Spent</h2><div class="rep-big">' + money(ins.total) + '</div><p class="hint">' + ins.count + (ins.count === 1 ? ' payment' : ' payments') + ' over ' + days + (days === 1 ? ' day' : ' days') + ', about ' + money(ins.total / days) + ' a day.</p></section>' +
+    '<section class="panel"><h2>Where it went</h2>' + (groups || '<p class="hint">No spending in this pay period yet.</p>') + '<p class="hint">Tap a group to see its places. If a place is in the wrong group, change it there and the app remembers.</p></section>' +
+    '<section class="panel"><h2>Most often</h2>' + (ins.frequent.length ? ins.frequent.slice(0, 8).map(p => placeRow(p, p.n + (p.n === 1 ? ' time' : ' times') + ' · ' + money(p.total) + ' · ' + groupName(p.g))).join('') : '<p class="hint">Nothing yet.</p>') + '</section>' +
+    '<section class="panel"><h2>Biggest payments</h2>' + (ins.biggest.length ? '<ul class="rep-list">' + ins.biggest.map(t => '<li>' + esc(short(t[0])) + ' · ' + esc(titleCase(placeOf(t[3]))) + ': ' + money(t[1]) + '</li>').join('') + '</ul>' : '<p class="hint">Nothing yet.</p>') + '</section>';
 }
 function pdRender() {
   const form = pd.view === 'form';
+  $('pd-spend').hidden = pd.view !== 'spend';
+  if (pd.view === 'spend') { $('pd-form').hidden = true; $('pd-report').hidden = true; $('pd-title').textContent = 'Spending'; $('pd-spend').innerHTML = pdSpendHtml(pd.k); return; }
   $('pd-form').hidden = !form; $('pd-report').hidden = form;
   $('pd-title').textContent = form ? 'Payday · ' + keyLabel(pd.k) : 'Month report';
   if (form) $('pd-form').innerHTML = pdFormHtml(pd.k); else $('pd-report').innerHTML = pdReportHtml(pd.k);
@@ -3052,22 +3156,40 @@ $('pd-sheet').addEventListener('click', e => {
   const id = b.id, keys = Object.keys(state.months).sort();
   if (id === 'pd-close') pdClose();
   else if (id === 'pd-done') pdDone();
-  else if (id === 'pd-to-form') { pd.view = 'form'; setMonth(pd.k); pdRender(); $('pd-sheet').scrollTop = 0; }
+  else if (id === 'pd-to-form') { const k = pd.k; pdClose(); goFill(k); }
   else if (id === 'pd-prev') { const i = keys.indexOf(pd.k); if (i > 0) { pd.k = keys[i - 1]; pdRender(); } }
   else if (id === 'pd-next') { const i = keys.indexOf(pd.k); if (i >= 0 && i < keys.length - 1) { pd.k = keys[i + 1]; pdRender(); } }
+  else if (id === 'sp-prev') { pd.k = stepKey(pd.k, -1); pdRender(); }
+  else if (id === 'sp-next') { pd.k = stepKey(pd.k, 1); pdRender(); }
+  else if (id === 'sp-open') { pdOpen(pd.k, 'spend'); }
   else if (id === 'pd-save-backup') { saveBackupFile(); const mm = $('pd-msg'); if (mm) mm.textContent = $('backup-msg').textContent; }
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('pd-sheet').hidden) pdClose(); });
-$('payday-start').addEventListener('click', () => pdOpen(paydayMonth(), 'form'));
+$('pd-spend').addEventListener('change', e => {   // move a place into another group; remembered for every pay period
+  const sel = e.target.closest('.sp-move'); if (!sel) return;
+  const r = spendRec(); r.groups = r.groups || {}; r.groups[sel.getAttribute('data-place')] = sel.value; setSpendRec(r);
+  const open = [...document.querySelectorAll('#pd-spend details[open] .sp-gn')].map(x => x.textContent);
+  pdRender(); renderSpendCard();
+  document.querySelectorAll('#pd-spend details .sp-gn').forEach(x => { if (open.indexOf(x.textContent) >= 0) x.closest('details').open = true; });
+});
+function goFill(k) { setMonth(k); setTab('monthly'); window.scrollTo(0, 0); }   // filling in a month happens on the Quest screen
+$('payday-start').addEventListener('click', () => goFill(paydayMonth()));
 $('payday-later').addEventListener('click', () => { const r = paydayRec(); r.snooze = Date.now() + 86400000; setPaydayRec(r); renderPaydayNudge(); });
-$('open-payday').addEventListener('click', () => pdOpen(paydayMonth(), 'form'));
+$('open-payday').addEventListener('click', () => goFill(paydayMonth()));
+$('quest-done').addEventListener('click', () => {   // the payday routine's Done: save the month, mark that payday as done, show its report
+  const k = ui.sel; touch();
+  const r = paydayRec(); if (!r.done || r.done < k) r.done = k; r.snooze = 0; setPaydayRec(r);
+  save(); update(); pdOpen(k, 'report');
+});
+$('go-sav').addEventListener('click', () => { setTab('monthly'); setTimeout(() => { const el = $('sav-list'); if (el) el.closest('section').scrollIntoView({ block: 'start' }); }, 60); });
+$('bills').addEventListener('click', e => { if (e.target.closest('summary') && e.target.closest('.bs-amt-in')) e.preventDefault(); });   // typing an amount does not open the row
 $('open-report').addEventListener('click', () => { const keys = Object.keys(state.months).sort(); pdOpen(keys.length ? keys[keys.length - 1] : paydayMonth(), 'report'); });
 
 /* ---------- bank spending: a CSV statement read on this phone (kept in its own small setting, never in the main save) ---------- */
 const SKEY = 'left-after-bills-spend';
 const TX_TYPES = { DEB: ['Card payments', true], FPO: ['Payments out', true], CPT: ['Cash machine', true], CHG: ['Charges', true], FEE: ['Fees', true], PAY: ['Payments', true],
   DD: ['Direct debits (already your bills)', false], SO: ['Standing orders (already your bills)', false], TFR: ['Transfers between accounts', false], BP: ['Bill payments', false] };
-function spendRec() { try { const r = JSON.parse(localStorage.getItem(SKEY) || 'null') || {}; r.tx = r.tx || []; r.types = r.types || {}; r.ignore = r.ignore || []; return r; } catch (e) { return { tx: [], types: {}, ignore: [] }; } }
+function spendRec() { try { const r = JSON.parse(localStorage.getItem(SKEY) || 'null') || {}; r.tx = r.tx || []; r.types = r.types || {}; r.ignore = r.ignore || []; r.groups = r.groups || {}; return r; } catch (e) { return { tx: [], types: {}, ignore: [] }; } }
 function setSpendRec(r) { try { localStorage.setItem(SKEY, JSON.stringify(r)); return true; } catch (e) { return false; } }
 const isoOf = d => d.toISOString().slice(0, 10);
 function parseCsv(text) {   // handles quotes, commas inside quotes and Windows line endings
@@ -3259,7 +3381,8 @@ function renderSpendCard() {
   $('spend-body').innerHTML = '<div class="spend-big">' + money(sp.total) + ' spent</div>' +
     '<div class="spend-bar' + (over ? ' over' : '') + '"><i style="width:' + pct.toFixed(1) + '%"></i></div>' +
     '<p class="hint">' + (over ? '<b style="color:var(--bad,#ec7a63)">' + money(-rest) + ' over</b> what was left after bills (' + money(left) + ').' : money(rest) + ' left of ' + money(left) + ' after bills: about ' + money(rest / days) + ' a day for ' + days + (days === 1 ? ' day' : ' days') + '.') + '</p>' +
-    (sp.top.length ? '<p class="spend-top">Most spent at: ' + sp.top.slice(0, 3).map(p => esc(titleCase(p[0])) + ' ' + money(p[1])).join(' · ') + '</p>' : '') + stale;
+    (() => { const ins = spendInsights(per.from, per.to); return ins.groups.length ? '<div class="spend-groups">' + ins.groups.slice(0, 4).map(G => '<span class="sg"><i class="cat-dot" style="background:' + groupColour(G.id) + '"></i>' + esc(groupName(G.id)) + ' <b>' + money(G.total) + '</b></span>').join('') + '</div>' : ''; })() + stale +
+    '<div class="btn-row" style="margin-top:8px"><button class="btn" id="spend-more" type="button">See spending</button></div>';
 }
 function renderBankPanel() {
   const st = $('bank-status'); if (!st) return;
@@ -3279,6 +3402,7 @@ function renderBankPanel() {
 }
 function bankSay(t) { $('bank-msg').textContent = t; }
 $('bank-import').addEventListener('click', () => $('bank-file').click());
+document.addEventListener('click', e => { const b = e.target.closest('#spend-more, #bank-insights'); if (b) pdOpen(paydayMonth(), 'spend'); });
 $('bank-file').addEventListener('change', async e => {
   const f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return;
   try {
@@ -4194,6 +4318,24 @@ Promise.all(Object.keys(A).map(k => new Promise(r => { const im = new Image(); i
 })();
 </script>
 
+<script>
+/* Codex and Chronicle: each section folds to its heading (tap to open); remembered on this phone */
+(function () {
+  const KEY = 'left-after-bills-folds';
+  let open = {}; try { open = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { open = {}; }
+  const shut = ['st-donut-h', 'st-cats-h', 'st-bills-h', 'st-cmp-h', 'st-bal-h', 'st-cards2-h', 'st-sav2-h', 'hi-line-h', 'hi-stack-h', 'hi-list-h', 'credits-h', 'look-h'];
+  document.querySelectorAll('#tab-stats > section.panel, #tab-history > section.panel').forEach(p => {
+    const h = p.querySelector(':scope > h2'); if (!h || !h.id) return;
+    p.classList.add('cfold'); h.setAttribute('role', 'button'); h.tabIndex = 0;
+    const ch = document.createElement('span'); ch.className = 'fchev'; ch.setAttribute('aria-hidden', 'true'); ch.innerHTML = '<svg width="12" height="12" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'; h.appendChild(ch);
+    const set = v => { p.classList.toggle('open', v); h.setAttribute('aria-expanded', String(v)); };
+    set(open[h.id] != null ? !!open[h.id] : shut.indexOf(h.id) < 0);
+    const flip = () => { const v = !p.classList.contains('open'); set(v); open[h.id] = v; try { localStorage.setItem(KEY, JSON.stringify(open)); } catch (e) {} if (v) { try { update(); } catch (e) {} } };
+    h.addEventListener('click', flip);
+    h.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
+  });
+})();
+</script>
 <script>
 /* offline: remember the app after the first visit (only on a real web address) */
 if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
