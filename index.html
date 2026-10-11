@@ -182,6 +182,11 @@ button, input, select { font-family: inherit; color: inherit; }
 .credit-list { margin: 8px 0 0; padding-left: 1.1rem; display: grid; gap: 6px; font-size: 0.85rem; color: var(--ink-3); font-weight: 600; }
 .credit-list a { color: inherit; text-decoration: underline; }
 html.sheet-open { overflow: hidden; }
+.spend-big { font-size: 1.35rem; font-weight: 800; color: #ffe3a0; }
+.spend-bar { height: 10px; border-radius: 5px; background: rgba(0, 0, 0, 0.35); overflow: hidden; margin: 8px 0; }
+.spend-bar i { display: block; height: 100%; background: var(--c3); }
+.spend-bar.over i { background: var(--bad, #ec7a63); }
+.spend-top { font-size: 0.8rem; color: var(--ink-3); font-weight: 600; margin-top: 4px; }
 .bank-set summary { cursor: pointer; font-weight: 700; padding: 6px 0; }
 .bank-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 0.85rem; font-weight: 600; }
 .bank-row label { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
@@ -911,6 +916,7 @@ document.documentElement.classList.toggle('still', window.lowMotion());</script>
     <figure class="vista" aria-hidden="true"><canvas class="scene" data-scene="camp"></canvas></figure>
     <button class="narrator" id="ov-narr" type="button" aria-live="polite" hidden><span class="nt"></span><span class="nn"></span></button>
     <div class="notice payday-nudge" id="payday-nudge" role="status" hidden><span id="payday-nudge-t"></span><span class="btn-row"><button class="btn primary" id="payday-start" type="button">Fill it in</button><button class="btn" id="payday-later" type="button">Not now</button></span></div>
+    <section class="panel spend-card" id="spend-card" aria-labelledby="spend-h" hidden><h2 id="spend-h">Since payday</h2><div id="spend-body"></div></section>
     <div class="notice backup-nudge" id="backup-nudge" role="status" hidden><span id="backup-nudge-t"></span><span class="btn-row"><button class="btn primary" id="nudge-save" type="button">Save backup</button><button class="btn" id="nudge-later" type="button">Later</button></span></div>
     <div class="notice" id="example-notice" hidden>
       <span>These are example figures. Clear them to start with your own.</span>
@@ -2692,7 +2698,7 @@ function update() {
   else if (ui.tab === 'history') renderHistory();
   renderBackupUi();
   renderPaydayNudge();
-  
+  renderSpendCard();
   renderBankPanel();
 }
 
@@ -2975,13 +2981,17 @@ function pdReportHtml(k) {
   const r = monthReport(k), i = keys.indexOf(k), list = (cls, a, none) => '<ul class="rep-list ' + cls + '">' + (a.length ? a.map(t => '<li>' + esc(t) + '</li>').join('') : '<li style="opacity:.75">' + none + '</li>') + '</ul>';
   const lvUp = r.xp.lvAfter.L > r.xp.lvBefore.L;
   const nav = '<div class="rep-nav"><button class="btn" id="pd-prev" type="button"' + (i <= 0 ? ' disabled' : '') + '>◀ ' + (i > 0 ? esc(keyLabel(keys[i - 1], true)) : '') + '</button><span>' + esc(keyLabel(k)) + '</span><button class="btn" id="pd-next" type="button"' + (i >= keys.length - 1 ? ' disabled' : '') + '>' + (i < keys.length - 1 ? esc(keyLabel(keys[i + 1], true)) : '') + ' ▶</button></div>';
-  const done = r.quests.filter(q => q.done).length;
-  return nav +
-    '<section class="panel"><h2>The month</h2><div class="rep-big">' + money(r.c.left) + '</div><p class="hint">left after bills' + (r.pc ? ' (' + (r.c.left - r.pc.left >= 0 ? '+' : '−') + money(Math.abs(r.c.left - r.pc.left)) + ' on ' + esc(keyLabel(r.prev, true)) + ')' : '') + '</p></section>' +
+  const done = r.quests.filter(q => q.done).length, per = periodOf(k), dLbl = x => new Date(x + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+  const perLine = '<p class="hint" style="color:#cdbf9a;margin:-6px 0 0">Paid ' + esc(dLbl(per.from)) + '. This pay covers ' + esc(dLbl(per.from)) + ' to ' + esc(dLbl(isoOf(new Date(Date.parse(per.to) - 86400000)))) + '.</p>';
+  return nav + perLine +
+    '<section class="panel"><h2>The month</h2><div class="rep-big">' + money(r.c.left) + '</div><p class="hint">left after bills' + (r.pc ? (Math.abs(r.c.left - r.pc.left) < 0.005 ? ' (same as ' + esc(keyLabel(r.prev, true)) + ')' : ' (' + (r.c.left - r.pc.left > 0 ? '+' : '−') + money(Math.abs(r.c.left - r.pc.left)) + ' on ' + esc(keyLabel(r.prev, true)) + ')') : '') + '</p></section>' +
     '<section class="panel"><h2>Good news</h2>' + list('rep-good', r.good, 'Nothing to celebrate yet. Fill in more figures to see how you did.') + '</section>' +
     '<section class="panel"><h2>Watch out</h2>' + list('rep-bad', r.bad, 'Nothing to worry about this month.') + '</section>' +
     '<section class="panel"><h2>Quests <small>' + done + ' of ' + r.quests.length + '</small></h2><ul class="rep-list rep-quest">' + (r.quests.length ? r.quests.map(q => '<li class="' + (q.done ? 'done' : '') + '">' + esc(q.text) + '</li>').join('') : '<li style="opacity:.75">No quests for this month yet.</li>') + '</ul></section>' +
-    (spendRec().tx.length ? (() => { const per = periodOf(k), sp = spendIn(per.from, per.to); return '<section class="panel"><h2>Spending</h2><div class="rep-big">' + money(sp.total) + '</div><p class="hint">spent between paydays (' + esc(new Date(per.from + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })) + ' to ' + esc(new Date(Date.parse(per.to) - 86400000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })) + '), ' + (r.c.left - sp.total >= 0 ? money(r.c.left - sp.total) + ' of what was left after bills still unspent.' : money(sp.total - r.c.left) + ' more than was left after bills.') + '</p>' + (sp.top.length ? '<ul class="rep-list">' + sp.top.slice(0, 5).map(p => '<li>' + esc(titleCase(p[0])) + ': ' + money(p[1]) + '</li>').join('') + '</ul>' : '') + '</section>'; })() : '') + spendInsightsHtml(k, r.c.left) +
+    (spendRec().tx.length ? (() => { const per = periodOf(k), sp = spendIn(per.from, per.to); const now = new Date(), today = isoOf(new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()))), short = x => new Date(x + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+      if (today < per.from) return '<section class="panel"><h2>Spending</h2><p class="hint">This pay period starts on payday, ' + esc(short(per.from)) + ', so nothing has been spent from it yet. Spending from your imported statement shows in the report for the pay period it falls in.</p></section>';
+      const going = today < per.to;
+      return '<section class="panel"><h2>Spending</h2><div class="rep-big">' + money(sp.total) + '</div><p class="hint">spent ' + (going ? 'so far this pay period (' + esc(short(per.from)) + ' to today)' : 'between paydays (' + esc(short(per.from)) + ' to ' + esc(short(isoOf(new Date(Date.parse(per.to) - 86400000)))) + ')') + ', ' + (r.c.left - sp.total >= 0 ? money(r.c.left - sp.total) + ' of what was left after bills ' + (going ? 'still to spend.' : 'unspent.') : money(sp.total - r.c.left) + ' more than was left after bills.') + (sp.newest && sp.newest < per.to && going ? ' Imported up to ' + esc(short(sp.newest)) + '.' : '') + '</p>' + (sp.top.length ? '<ul class="rep-list">' + sp.top.slice(0, 5).map(p => '<li>' + esc(titleCase(p[0])) + ': ' + money(p[1]) + '</li>').join('') + '</ul>' : '') + '</section>'; })() : '') +
     '<section class="panel"><h2>XP and chest</h2><div class="rep-big">+' + r.xp.gained + ' XP</div><p class="hint">' + (lvUp ? 'LEVEL UP! Level ' + r.xp.lvBefore.L + ' to level ' + r.xp.lvAfter.L + ', ' + esc(r.xp.lvAfter.title) + '.' : 'Level ' + r.xp.lvAfter.L + ', ' + esc(r.xp.lvAfter.title) + '.') + '</p>' +
     (xpLines(r.xp.rows) ? '<ul class="xp-bd" style="margin:0;padding:0;list-style:none;display:grid;gap:4px">' + xpLines(r.xp.rows) + '</ul>' : '') +
     '<p class="hint">' + (r.chest ? 'Your savings grew by ' + money(r.chest.up) + ', so the chest opened.' + (r.chest.to > r.chest.from ? ' It is now a ' + CHEST_NAMES[r.chest.to].toLowerCase() + '.' : '') : 'No savings growth this month, so the chest stayed shut.') + '</p></section>' +
@@ -2990,7 +3000,7 @@ function pdReportHtml(k) {
 function pdRender() {
   const form = pd.view === 'form';
   $('pd-form').hidden = !form; $('pd-report').hidden = form;
-  $('pd-title').textContent = form ? 'Payday · ' + keyLabel(pd.k) : 'Report · ' + keyLabel(pd.k);
+  $('pd-title').textContent = form ? 'Payday · ' + keyLabel(pd.k) : 'Month report';
   if (form) $('pd-form').innerHTML = pdFormHtml(pd.k); else $('pd-report').innerHTML = pdReportHtml(pd.k);
 }
 function pdOpen(k, view) {
@@ -3228,73 +3238,20 @@ function spendIn(from, to) {   // to is exclusive
   return { total: Math.round(total * 100) / 100, count: list.length, top, newest: rec.tx.length ? rec.tx[rec.tx.length - 1][0] : null };
 }
 const titleCase = p => p.toLowerCase().replace(/\b[a-z]/g, c => c.toUpperCase());
-const SPEND_CATS = [
-  ['Food shop', /TESCO|SAINSBURY|ASDA|MORRISONS|ALDI|LIDL|CO-?OP|WAITROSE|M&S SIMPLY|ICELAND|SPAR\b|FARMFOODS|HEATHERS/],
-  ['Eating out', /MCDONALD|KFC|BURGER|GREGGS|SUBWAY|PIZZA|DOMINO|NANDO|COSTA|STARBUCKS|CAFE|COFFEE|RESTAURANT|DELIVEROO|JUST ?EAT|UBER ?EAT|\bPRET\b|WETHERSPOON|PUB\b|BAR\b|TAKEAWAY|CHIPPY|\bFISH\b|BAKERY|WAGAMAMA/],
-  ['Transport and fuel', /\bBP\b|SHELL|ESSO|TEXACO|FUEL|PETROL|TRAINLINE|SCOTRAIL|FIRST BUS|STAGECOACH|UBER\b|\bBOLT\b|\bTFL\b|PARKING|APCOA|RINGGO|CAR PARK|TAXI/],
-  ['Subscriptions and media', /NETFLIX|SPOTIFY|DISNEY|AMAZON PRIME|PRIME VIDEO|NOW TV|YOUTUBE|APPLE\.COM|ITUNES|GOOGLE|PLAYSTATION|XBOX|STEAM|NINTENDO|AUDIBLE|PATREON|ICLOUD|DROPBOX/],
-  ['Online shopping', /AMAZON|AMZN|EBAY|PAYPAL|ARGOS|TEMU|SHEIN|ETSY|ASOS|NEXT\b|PRIMARK/],
-  ['Health and chemist', /BOOTS|SUPERDRUG|PHARMACY|DENTAL|DENTIST|OPTICIAN|SPECSAVERS|GYM|FITNESS/],
-  ['Home and DIY', /B ?& ?Q|SCREWFIX|WICKES|IKEA|HOMEBASE|DUNELM|WILKO|B&M|HOME BARGAINS|POUNDLAND|POUNDLAND/],
-  ['Cash', /CASH|ATM|LINK /]
-];
-const catOfPlace = p => { for (let i = 0; i < SPEND_CATS.length; i++) if (SPEND_CATS[i][1].test(p)) return SPEND_CATS[i][0]; return 'Everything else'; };
-function periodTx(rec, per) { return rec.tx.filter(t => t[0] >= per.from && t[0] < per.to && countsAsSpend(rec, t)); }
-function sumBy(list, keyFn) { const m = {}; list.forEach(t => { const k2 = keyFn(t); m[k2] = (m[k2] || 0) + t[1]; }); return m; }
-function spendInsights(k) {   // everything worth knowing about one finished pay period, compared with the one before
-  const rec = spendRec(); if (!rec.tx.length) return null;
-  const per = periodOf(k), prevPer = periodOf(prevKeyOf(k));
-  const cur = periodTx(rec, per); if (!cur.length) return null;
-  const prev = periodTx(rec, prevPer), hasPrev = prev.length > 0 && rec.tx[0][0] <= prevPer.from;
-  const total = cur.reduce((s2, t) => s2 + t[1], 0), prevTotal = prev.reduce((s2, t) => s2 + t[1], 0);
-  const today = isoOf(new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())));
-  const last = rec.tx[rec.tx.length - 1][0], covered = rec.tx[0][0] <= per.from && last >= isoOf(new Date(Date.parse(per.to) - 86400000 * 3));
-  const ended = today >= per.to;
-  const out = { per, total, prevTotal, hasPrev, n: cur.length, covered, ended, last };
-  const days = Math.max(1, Math.round((Date.parse(ended ? per.to : last) - Date.parse(per.from)) / 86400000) + (ended ? 0 : 1));
-  out.perDay = total / days;
-  const cc = sumBy(cur, t => catOfPlace(placeOf(t[3]))), pc = sumBy(prev, t => catOfPlace(placeOf(t[3])));
-  out.cats = Object.keys(cc).map(c => ({ name: c, v: cc[c], pv: pc[c] || 0 })).sort((a, b) => b.v - a.v);
-  const cp = sumBy(cur, t => placeOf(t[3])), pp = sumBy(prev, t => placeOf(t[3]));
-  const cnt = {}; cur.forEach(t => { const p = placeOf(t[3]); cnt[p] = (cnt[p] || 0) + 1; });
-  out.movers = hasPrev ? Object.keys(cp).map(p => ({ p, d: cp[p] - (pp[p] || 0), v: cp[p], isNew: pp[p] === undefined })).filter(m => Math.abs(m.d) >= 15).sort((a, b) => Math.abs(b.d) - Math.abs(a.d)).slice(0, 5) : [];
-  out.newPlaces = hasPrev ? Object.keys(cp).filter(p => pp[p] === undefined && cp[p] >= 15).sort((a, b) => cp[b] - cp[a]).slice(0, 4).map(p => [p, cp[p]]) : [];
-  out.biggest = cur.slice().sort((a, b) => b[1] - a[1]).slice(0, 3);
-  const small = cur.filter(t => t[1] < 10), sp2 = sumBy(small, t => placeOf(t[3]));
-  out.small = { n: small.length, v: small.reduce((s2, t) => s2 + t[1], 0), top: Object.keys(sp2).map(p => [p, sp2[p]]).sort((a, b) => b[1] - a[1])[0] };
-  out.habits = Object.keys(cnt).filter(p => cnt[p] >= 4).map(p => ({ p, n: cnt[p], v: cp[p] })).sort((a, b) => b.v - a.v).slice(0, 3);
-  const wd = [0, 0, 0, 0, 0, 0, 0]; cur.forEach(t => { wd[(new Date(t[0] + 'T12:00:00').getDay() + 6) % 7] += t[1]; });
-  const wi = wd.indexOf(Math.max.apply(null, wd)); out.topDay = { i: wi, v: wd[wi], share: wd[wi] / total };
-  out.weekend = (wd[5] + wd[6]) / total;
-  const wk = cur.filter(t => Date.parse(t[0]) - Date.parse(per.from) < 7 * 86400000).reduce((s2, t) => s2 + t[1], 0); out.firstWeek = wk / total;
-  const same = {}; rec.tx.forEach(t => { if (!countsAsSpend(rec, t)) return; const key = placeOf(t[3]) + '|' + Math.round(t[1]); (same[key] = same[key] || []).push(t[0]); });
-  out.subs = Object.keys(same).map(key => { const d = same[key], a = key.split('|'); return { p: a[0], v: +a[1], d }; }).filter(s2 => s2.d.length >= 2 && s2.d.some(x => x >= per.from && x < per.to) && s2.d.slice(1).every((x, i) => { const g = (Date.parse(x) - Date.parse(s2.d[i])) / 86400000; return g >= 25 && g <= 35; })).sort((a, b) => b.v - a.v).slice(0, 4);
-  return out;
-}
-function spendInsightsHtml(k, left) {
-  const s = spendInsights(k); if (!s) return '';
-  const fmt = iso => new Date(iso + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-  const diff = (a, b) => (a - b >= 0 ? '+' : '−') + money(Math.abs(a - b));
-  const li = t => '<li>' + t + '</li>', ul = a => a.length ? '<ul class="rep-list">' + a.join('') + '</ul>' : '';
-  const DAYS = ['Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays', 'Sundays'];
-  let h = '<section class="panel"><h2>Spending insights</h2>';
-  if (!s.covered || !s.ended) h += '<p class="hint"><b>Heads up:</b> ' + (!s.ended ? 'this pay period is not over yet' : 'the statement you imported stops at ' + fmt(s.last) + ' and may not cover the whole period') + ', so the figures below are for part of it. Import a fresh statement after the next payday for the full picture.</p>';
-  h += '<div class="rep-big">' + money(s.total) + '</div><p class="hint">spent over ' + s.n + ' payments, about ' + money(s.perDay) + ' a day' + (s.hasPrev ? '. Last period was ' + money(s.prevTotal) + ' (' + diff(s.total, s.prevTotal) + ').' : '.') + '</p>';
-  const spent = Math.min(100, left > 0 ? s.total / left * 100 : 100);
-  if (left > 0) h += '<p class="hint">That is ' + spent.toFixed(0) + '% of the ' + money(left) + ' you had left after bills.</p>';
-  h += '<h3 class="bank-h3">Where it went</h3>' + ul(s.cats.slice(0, 6).map(c => li(esc(c.name) + ': ' + money(c.v) + ' (' + (s.total ? (c.v / s.total * 100).toFixed(0) : 0) + '%)' + (s.hasPrev && Math.abs(c.v - c.pv) >= 10 ? ', ' + diff(c.v, c.pv) + ' on last period' : ''))));
-  if (s.movers.length) h += '<h3 class="bank-h3">Biggest changes</h3>' + ul(s.movers.map(m => li(esc(titleCase(m.p)) + ': ' + money(m.v) + (m.isNew ? ' (new)' : ', ' + diff(m.v, m.v - m.d)))));
-  if (s.biggest.length) h += '<h3 class="bank-h3">Biggest single payments</h3>' + ul(s.biggest.map(t => li(esc(titleCase(placeOf(t[3])).slice(0, 36)) + ' on ' + fmt(t[0]) + ': ' + money(t[1]))));
-  const notes = [];
-  notes.push('Your biggest spending day is ' + DAYS[s.topDay.i] + ' (' + money(s.topDay.v) + ', ' + (s.topDay.share * 100).toFixed(0) + '% of the total).');
-  if (s.firstWeek > 0.4) notes.push((s.firstWeek * 100).toFixed(0) + '% of it went in the first week after payday. Spreading it out helps the end of the month.');
-  if (s.weekend > 0.45) notes.push('Weekends took ' + (s.weekend * 100).toFixed(0) + '% of your spending.');
-  if (s.small.n >= 8) notes.push(s.small.n + ' payments under £10 added up to ' + money(s.small.v) + (s.small.top ? ', mostly ' + esc(titleCase(s.small.top[0])) : '') + '.');
-  s.habits.forEach(x => notes.push('You paid ' + esc(titleCase(x.p)) + ' ' + x.n + ' times, ' + money(x.v) + ' in all.'));
-  if (s.newPlaces.length) notes.push('New this period: ' + s.newPlaces.map(p => esc(titleCase(p[0])) + ' ' + money(p[1])).join(', ') + '.');
-  h += '<h3 class="bank-h3">Patterns</h3>' + ul(notes.map(li));
-  if (s.subs.length) h += '<h3 class="bank-h3">Looks like a monthly charge</h3>' + ul(s.subs.map(x => li(esc(titleCase(x.p)) + ': ' + money(x.v) + ' (' + x.d.length + ' months running)'))) + '<p class="hint">Worth checking these are still wanted. If they are real bills, add them to your bills.</p>';
-  return h + '</section>';
+function renderSpendCard() {
+  const card = $('spend-card'); if (!card) return;
+  const rec = spendRec(); card.hidden = !rec.tx.length; if (!rec.tx.length) return;
+  const k = paydayMonth(), per = periodOf(k), today = isoOf(new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())));
+  const sp = spendIn(per.from, per.to), left = compute(getMonth(k)).left, rest = left - sp.total;
+  const days = Math.max(1, Math.round((Date.parse(per.to) - Date.parse(today)) / 86400000));
+  const pct = left > 0 ? Math.min(100, sp.total / left * 100) : 100, over = rest < 0;
+  const fromLbl = new Date(per.from + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+  const stale = sp.newest && sp.newest < today ? '<p class="hint">Includes transactions up to ' + new Date(sp.newest + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + '. Import again to update.</p>' : '';
+  $('spend-h').textContent = 'Since payday (' + fromLbl + ')';
+  $('spend-body').innerHTML = '<div class="spend-big">' + money(sp.total) + ' spent</div>' +
+    '<div class="spend-bar' + (over ? ' over' : '') + '"><i style="width:' + pct.toFixed(1) + '%"></i></div>' +
+    '<p class="hint">' + (over ? '<b style="color:var(--bad,#ec7a63)">' + money(-rest) + ' over</b> what was left after bills (' + money(left) + ').' : money(rest) + ' left of ' + money(left) + ' after bills: about ' + money(rest / days) + ' a day for ' + days + (days === 1 ? ' day' : ' days') + '.') + '</p>' +
+    (sp.top.length ? '<p class="spend-top">Most spent at: ' + sp.top.slice(0, 3).map(p => esc(titleCase(p[0])) + ' ' + money(p[1])).join(' · ') + '</p>' : '') + stale;
 }
 function renderBankPanel() {
   const st = $('bank-status'); if (!st) return;
@@ -3326,7 +3283,7 @@ $('bank-file').addEventListener('change', async e => {
     if (r.error) bankSay(r.error);
     else bankSay('Read ' + r.read + (r.read === 1 ? ' payment' : ' payments') + ' out (' + new Date(r.from + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ' to ' + new Date(r.to + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + '). ' + (r.added === r.read ? 'All new.' : r.added ? r.added + ' new, the rest were already imported.' : 'All of them were already imported.'));
   } catch (er) { bankSay('Could not read that file.'); }
-  renderBankPanel(); 
+  renderBankPanel(); renderSpendCard();
 });
 let bankClearArm = 0;
 $('bank-clear').addEventListener('click', () => {
@@ -3334,18 +3291,18 @@ $('bank-clear').addEventListener('click', () => {
   if (!bankClearArm) { bankClearArm = setTimeout(() => { bankClearArm = 0; b.textContent = 'Clear imported'; }, 4000); b.textContent = 'Tap again to clear'; return; }
   clearTimeout(bankClearArm); bankClearArm = 0; b.textContent = 'Clear imported';
   const r = spendRec(); r.tx = []; r.at = 0; setSpendRec(r); bankSay('Imported transactions cleared. Your budget figures were not touched.');
-  renderBankPanel(); 
+  renderBankPanel(); renderSpendCard();
 });
 $('bank-types').addEventListener('change', e => {
   const t = e.target.getAttribute('data-type'); if (t == null) return;
-  const r = spendRec(); r.types[t] = e.target.checked; setSpendRec(r); renderBankPanel(); 
+  const r = spendRec(); r.types[t] = e.target.checked; setSpendRec(r); renderBankPanel(); renderSpendCard();
 });
 $('bank-places').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   const r = spendRec(), ig = b.getAttribute('data-ignore'), un = b.getAttribute('data-unignore');
   if (ig && r.ignore.indexOf(ig) < 0) r.ignore.push(ig);
   if (un) r.ignore = r.ignore.filter(p => p !== un);
-  setSpendRec(r); renderBankPanel(); 
+  setSpendRec(r); renderBankPanel(); renderSpendCard();
 });
 
 /* ---------- practice data: a made-up year, two taps to load ---------- */
@@ -3370,7 +3327,7 @@ save();
 renderPayday();
 renderBackupUi();
 renderPaydayNudge();
-
+renderSpendCard();
 renderBankPanel();
 syncMonthInputs();
 renderStepper();
