@@ -3358,10 +3358,13 @@ $('open-report').addEventListener('click', () => { const keys = Object.keys(stat
 const SKEY = 'left-after-bills-spend';
 const TX_TYPES = { DEB: ['Card payments', true], FPO: ['Payments out', true], CPT: ['Cash machine', true], CHG: ['Charges', true], FEE: ['Fees', true], PAY: ['Payments', true],
   DD: ['Direct debits (already your bills)', false], SO: ['Standing orders (already your bills)', false], TFR: ['Transfers between accounts', false], BP: ['Bill payments', false] };
+const cleanDesc = d => String(d || '').replace(/\(?\s*continued\s+(on|from)\s+(the\s+)?(next|previous|last)\s+page\s*\)?/ig, ' ').replace(/\s+/g, ' ').trim();   // page footers a PDF can glue onto the last payment on a page
 function spendRec() {
   try {
     const r = JSON.parse(localStorage.getItem(SKEY) || 'null') || {}; r.tx = r.tx || []; r.types = r.types || {}; r.ignore = r.ignore || []; r.groups = r.groups || {};
     if (r.ignore.length) { r.ignore.forEach(p => { if (!r.groups[p]) r.groups[p] = 'out'; }); r.ignore = []; }   // places you ignored before are now sorted as Not spending
+    let fixed = 0; r.tx.forEach(t => { const c = cleanDesc(t[3]); if (c !== t[3]) { t[3] = c; fixed++; } });
+    if (fixed) setSpendRec(r);   // tidy payments imported before the footer fix, once, so a re-import matches them
     return r;
   } catch (e) { return { tx: [], types: {}, ignore: [], groups: {} }; }
 }
@@ -3414,6 +3417,7 @@ function importBank(text) {   // returns { added, read, from, to } or { error }
   return addTransactions(fresh);
 }
 function addTransactions(fresh) {   // [date, amount out, type, description] rows -> saved, without double counting
+  fresh.forEach(t => { t[3] = cleanDesc(t[3]); });
   const rec = spendRec(), sig = t => t.join('|'), have = {}, seen = {};
   rec.tx.forEach(t => { have[sig(t)] = (have[sig(t)] || 0) + 1; });
   let added = 0;
@@ -3526,7 +3530,7 @@ async function pdfRows(buf) {
   if (!fresh.length) return { error: 'No money-out transactions found in that PDF.' + details };
   return { fresh };
 }
-const placeOf = desc => String(desc || '').toUpperCase().replace(/[*#]/g, ' ').replace(/\b\d{1,2}\s?(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)(\d{2,4})?\b/g, ' ').replace(/\b(?=[A-Z0-9]*\d)(?=[A-Z0-9]*[A-Z])[A-Z0-9]{4,}\b/g, ' ').replace(/\d{3,}/g, ' ').replace(/[\-_]+(\s|$)/g, ' ').replace(/\s+/g, ' ').trim() || 'UNKNOWN';
+const placeOf = desc => cleanDesc(desc).toUpperCase().replace(/\s+(DEB|CPT|FPO|FPI|TFR|CHG)$/, '').replace(/[*#]/g, ' ').replace(/\b\d{1,2}\s?(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)(\d{2,4})?\b/g, ' ').replace(/\b(?=[A-Z0-9]*\d)(?=[A-Z0-9]*[A-Z])[A-Z0-9]{4,}\b/g, ' ').replace(/\d{3,}/g, ' ').replace(/[\-_]+(\s|$)/g, ' ').replace(/\s+/g, ' ').trim() || 'UNKNOWN';
 function countsAsSpend(rec, t) {   // bills, card payments and money moved between your own accounts are already counted in left after bills
   return kindOf(groupOf(rec, placeOf(t[3]), t[2])) === 'spend';
 }
